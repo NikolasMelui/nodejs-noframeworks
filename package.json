@@ -1,0 +1,9 @@
+{
+  "name": "nodejs-noframeworks-restapi",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": "git@github.com:NikolasMelui/nodejs-noframeworks-restapi.git",
+  "author": "NikolasMelui <slak@samaradom.ru>",
+  "license": "MIT",
+  "private": true
+}
