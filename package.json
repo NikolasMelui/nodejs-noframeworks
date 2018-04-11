@@ -1,9 +1,23 @@
 {
-  "name": "nodejs-noframeworks-restapi",
-  "version": "0.1.0",
-  "main": "index.js",
-  "repository": "git@github.com:NikolasMelui/nodejs-noframeworks-restapi.git",
-  "author": "NikolasMelui <slak@samaradom.ru>",
-  "license": "MIT",
-  "private": true
+	"name": "nodejs-noframeworks-restapi",
+	"version": "0.1.0",
+	"main": "index.js",
+	"repository": "git@github.com:NikolasMelui/nodejs-noframeworks-restapi.git",
+	"author": "NikolasMelui <slak@samaradom.ru>",
+	"license": "MIT",
+	"private": true,
+	"devDependencies": {
+		"eslint": "^4.19.1",
+		"eslint-config-airbnb": "^16.1.0",
+		"eslint-config-prettier": "^2.9.0",
+		"eslint-plugin-import": "^2.10.0"
+	},
+	"eslintConfig": {
+		"root": true,
+		"env": {
+			"node": true
+		},
+		"extends": ["airbnb-base", "prettier"]
+	},
+	"eslint.packageManager": "yarn"
 }
