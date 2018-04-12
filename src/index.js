@@ -7,7 +7,7 @@ const server = http.createServer((req, res) => {
 	const path = parsedUrl.pathname;
 	const queryStringObject = parsedUrl.query;
 	const trimmedPath = path.replace(/^\/+|\/+$/g, '');
-	const method = req.method.toUpperCase();
+	const method = req.method.toLowerCase();
 	const headersObject = req.headers;
 	let headersString = '';
 	for (const [key, value] of Object.entries(headersObject)) {
@@ -31,3 +31,17 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(3000, () => global.console.log(`Server is listening on port 3000`));
+
+let handlers = {};
+
+handlers.sample = (data, callback) => {
+	callback(200, { name: 'sample handler' });
+};
+
+handlers.notFound = (data, callback) => {
+	callback(404);
+};
+
+const router = {
+	sample: handlers.sample,
+};
