@@ -2,46 +2,56 @@ import http from 'http';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
 
+const config = {
+	port: 3000,
+};
+
+const handlers = {
+	sample: (data, callback) => callback(200, { name: 'sample handler' }),
+	notFound: (data, callback) => callback(404),
+};
+
+const routers = {
+	sample: handlers.sample,
+};
+
 const server = http.createServer((req, res) => {
-	const parsedUrl = url.parse(req.url, true);
-	const path = parsedUrl.pathname;
-	const queryStringObject = parsedUrl.query;
-	const trimmedPath = path.replace(/^\/+|\/+$/g, '');
-	const method = req.method.toLowerCase();
-	const headersObject = req.headers;
-	let headersString = '';
-	for (const [key, value] of Object.entries(headersObject)) {
-		headersString += `${key} => ${value}\n`;
-	}
+	const reqParsedUrl = url.parse(req.url, true);
+	const reqPath = reqParsedUrl.pathname;
+	const reqQueryStringObject = reqParsedUrl.query;
+	const reqTrimmedPath = reqPath.replace(/^\/+|\/+$/g, '');
+	const reqMethod = req.method.toLowerCase();
+	const reqHeaders = req.headers;
 
 	const decoder = new StringDecoder('utf-8');
-	let buffer = '';
+	let reqPayload = '';
 
-	req.on('data', data => (buffer += decoder.write(data)));
+	req.on('data', data => (reqPayload += decoder.write(data)));
 	req.on('end', () => {
-		buffer += decoder.end();
-		global.console.log(
-			`Request received on path: ${trimmedPath}\nwith method: ${method}\nquery parameters: ${JSON.stringify(
-				queryStringObject
-			)}\npayloads: ${buffer}`
-		);
-		global.console.log(`and headers:\n`, headersObject);
-		res.end(`Path: ${trimmedPath}\nHeaders:\n${headersString}`);
+		reqPayload += decoder.end();
+
+		const chosenHandler =
+			typeof routers[reqTrimmedPath] !== 'undefined' ? routers[reqTrimmedPath] : handlers.notFound;
+
+		const data = {
+			trimmedPath: reqTrimmedPath,
+			queryStringObject: reqQueryStringObject,
+			method: reqMethod,
+			headers: reqHeaders,
+			payload: reqPayload,
+		};
+
+		chosenHandler(data, (statusCode, payload) => {
+			statusCode = typeof statusCode === 'number' ? statusCode : 200;
+			payload = typeof payload === 'object' ? payload : {};
+
+			const payloadString = JSON.stringify(payload);
+
+			res.writeHead(statusCode);
+			res.end(payloadString);
+			global.console.log('Returning the response: ', statusCode, payloadString);
+		});
 	});
 });
 
-server.listen(3000, () => global.console.log(`Server is listening on port 3000`));
-
-let handlers = {};
-
-handlers.sample = (data, callback) => {
-	callback(200, { name: 'sample handler' });
-};
-
-handlers.notFound = (data, callback) => {
-	callback(404);
-};
-
-const router = {
-	sample: handlers.sample,
-};
+server.listen(config.port, () => global.console.log(`Server is listening on port: ${config.port}.`));
