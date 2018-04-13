@@ -1,10 +1,12 @@
 const envs = {
 	dev: {
-		port: 3000,
+		httpPort: 3000,
+		httpsPort: 3001,
 		env: 'dev',
 	},
 	prod: {
-		port: 5000,
+		httpPort: 5000,
+		httpsPort: 5001,
 		env: 'prod',
 	},
 };
