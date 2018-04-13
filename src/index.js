@@ -1,10 +1,7 @@
 import http from 'http';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
-
-const config = {
-	port: 3000,
-};
+import config from './config';
 
 const handlers = {
 	sample: (data, callback) => callback(200, { name: 'sample handler' }),
@@ -54,4 +51,6 @@ const server = http.createServer((req, res) => {
 	});
 });
 
-server.listen(config.port, () => global.console.log(`Server is listening on port: ${config.port}.`));
+server.listen(config.port, () =>
+	global.console.log(`Server is listening on port: ${config.port} in ${config.env} mode.`)
+);
