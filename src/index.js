@@ -1,5 +1,7 @@
+import fs from 'fs';
 import http from 'http';
 import url from 'url';
+import https from 'https';
 import { StringDecoder } from 'string_decoder';
 import config from './config';
 
@@ -12,7 +14,12 @@ const routers = {
 	sample: handlers.sample,
 };
 
-const server = http.createServer((req, res) => {
+const httpsServerOptions = {
+	key: fs.readFileSync('./src/key.pem'),
+	cert: fs.readFileSync('./src/cert.pem'),
+};
+
+const unifiedServer = (req, res) => {
 	const reqParsedUrl = url.parse(req.url, true);
 	const reqPath = reqParsedUrl.pathname;
 	const reqQueryStringObject = reqParsedUrl.query;
@@ -41,7 +48,6 @@ const server = http.createServer((req, res) => {
 		chosenHandler(data, (statusCode, payload) => {
 			statusCode = typeof statusCode === 'number' ? statusCode : 200;
 			payload = typeof payload === 'object' ? payload : {};
-
 			const payloadString = JSON.stringify(payload);
 			res.setHeader('Content-Type', 'application/json');
 			res.writeHead(statusCode);
@@ -49,8 +55,15 @@ const server = http.createServer((req, res) => {
 			global.console.log('Returning the response: ', statusCode, payloadString);
 		});
 	});
+};
+
+const httpServer = http.createServer((req, res) => {
+	unifiedServer(req, res);
 });
 
-server.listen(config.port, () =>
-	global.console.log(`Server is listening on port: ${config.port} in ${config.env} mode.`)
-);
+const httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+	unifiedServer(req, res);
+});
+
+httpServer.listen(config.httpPort, () => global.console.log(`Server is listening on port: ${config.httpPort}.`));
+httpsServer.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
