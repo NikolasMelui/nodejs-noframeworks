@@ -6,12 +6,12 @@ import { StringDecoder } from 'string_decoder';
 import config from './config';
 
 const handlers = {
-	sample: (data, callback) => callback(200, { name: 'sample handler' }),
+	ping: (data, callback) => callback(200, { res: 'server is working' }),
 	notFound: (data, callback) => callback(404),
 };
 
 const routers = {
-	sample: handlers.sample,
+	ping: handlers.ping,
 };
 
 const httpsServerOptions = {
