@@ -3,6 +3,7 @@ import http from 'http';
 import url from 'url';
 import https from 'https';
 import { StringDecoder } from 'string_decoder';
+import _data from './lib/data';
 import config from './config';
 
 const handlers = {
@@ -15,8 +16,8 @@ const routers = {
 };
 
 const httpsServerOptions = {
-	key: fs.readFileSync('./src/key.pem'),
-	cert: fs.readFileSync('./src/cert.pem'),
+	key: fs.readFileSync('./src/ssl/key.pem'),
+	cert: fs.readFileSync('./src/ssl/cert.pem'),
 };
 
 const unifiedServer = (req, res) => {
