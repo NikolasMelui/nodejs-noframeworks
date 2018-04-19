@@ -3,7 +3,7 @@ import http from 'http';
 import url from 'url';
 import https from 'https';
 import { StringDecoder } from 'string_decoder';
-import _data from './lib/data';
+// import _data from './lib/data';
 import config from './config';
 
 const handlers = {
