@@ -3,7 +3,7 @@ import http from 'http';
 // import https from 'https';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
-import _data from './lib/data';
+// import _data from './lib/data';
 import config from './config';
 
 const handlers = {
@@ -56,10 +56,19 @@ const unifiedServer = (req, res) => {
 			res.writeHead(statusCode);
 			res.end(payloadString);
 			global.console.log('Returning the response: ', statusCode, payloadString);
+
+			/**
+			 * @TEST: test function for data.json files.
+			 *
+			 */
+
 			// _data.create('test', 'newFile', payload, err => global.console.log(`This was the error:\n${err}`));
-			_data.read('test', 'newFile', (err, __data) =>
-				global.console.log(`This was the error:\n${err}\n___\nAnd this was the data:\n${__data}`)
-			);
+
+			// _data.read('test', 'newFile', (err, __data) =>
+			// 	global.console.log(`This was the error:\n${err}\n___\nAnd this was the data:\n${__data}`)
+			// );
+
+			// _data.update('test', 'newFile', payload, err => global.console.log(`This was the error:\n${err}`));
 		});
 	});
 };

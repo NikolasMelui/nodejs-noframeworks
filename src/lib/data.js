@@ -30,6 +30,38 @@ const lib = {
 			callback(err, data);
 		});
 	},
+
+	/**
+	 * @TODO: Update file.
+	 */
+	update: (dir, file, data, callback) => {
+		fs.open(`${lib.baseDir}/${dir}/${file}.json`, 'r+', (err, fileDescriptor) => {
+			if (!err && fileDescriptor) {
+				const stringData = JSON.stringify(data);
+				fs.truncate(fileDescriptor, _err => {
+					if (!_err) {
+						fs.writeFile(fileDescriptor, stringData, __err => {
+							if (!err) {
+								fs.close(fileDescriptor, ___err => {
+									if (!___err) {
+										callback(false);
+									} else {
+										callback(`Error closing existing file. Error:\n${___err}`);
+									}
+								});
+							} else {
+								callback(`Error writing to existing file. Error:\n${__err}`);
+							}
+						});
+					} else {
+						callback(`Error truncating the file. Error:\n${_err}`);
+					}
+				});
+			} else {
+				callback(`Could not open file for updating. Error:\n${err}`);
+			}
+		});
+	},
 };
 
 export default lib;
