@@ -62,13 +62,15 @@ const unifiedServer = (req, res) => {
 			 *
 			 */
 
-			// _data.create('test', 'newFile', payload, err => global.console.log(`This was the error:\n${err}`));
+			// _data.create('test', 'newFile', data.headers, err => global.console.log(`This was the error: ${err}`));
 
 			// _data.read('test', 'newFile', (err, __data) =>
-			// 	global.console.log(`This was the error:\n${err}\n___\nAnd this was the data:\n${__data}`)
+			// 	global.console.log(`This was the error: ${err}\n___\nAnd this was the data: ${__data}`)
 			// );
 
-			// _data.update('test', 'newFile', payload, err => global.console.log(`This was the error:\n${err}`));
+			// _data.update('test', 'newFile', data.headers, err => global.console.log(`This was the error: ${err}`));
+
+			// _data.delete('test', 'newFile', err => global.console.log(`This was the error: ${err}`));
 		});
 	});
 };

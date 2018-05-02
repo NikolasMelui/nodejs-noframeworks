@@ -41,7 +41,7 @@ const lib = {
 				fs.truncate(fileDescriptor, _err => {
 					if (!_err) {
 						fs.writeFile(fileDescriptor, stringData, __err => {
-							if (!err) {
+							if (!__err) {
 								fs.close(fileDescriptor, ___err => {
 									if (!___err) {
 										callback(false);
@@ -59,6 +59,15 @@ const lib = {
 				});
 			} else {
 				callback(`Could not open file for updating. Error:\n${err}`);
+			}
+		});
+	},
+	delete: (dir, file, callback) => {
+		fs.unlink(`${lib.baseDir}/${dir}/${file}.json`, err => {
+			if (!err) {
+				callback(false);
+			} else {
+				callback(`Could not delete file. Error:\n${err}`);
 			}
 		});
 	},
