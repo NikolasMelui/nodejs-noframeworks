@@ -7,10 +7,10 @@ const lib = {
 		fs.open(`${baseDir}/${dir}/${file}.json`, `wx`, (err, fileDescriptor) => {
 			if (!err && fileDescriptor) {
 				const stringData = JSON.stringify(data);
-				fs.writeFile(fileDescriptor, stringData, err => {
-					if (!err) {
-						fs.close(fileDescriptor, err => {
-							if (!err) {
+				fs.writeFile(fileDescriptor, stringData, _err => {
+					if (!_err) {
+						fs.close(fileDescriptor, __err => {
+							if (!__err) {
 								callback(false);
 							} else {
 								callback('Error closing new file');
@@ -25,7 +25,10 @@ const lib = {
 			}
 		});
 	},
-	reade: () => {},
+	reade: (dir, file, callback) => {
+		global.console.log('WoW!');
+		callback();
+	},
 };
 
 export default lib;

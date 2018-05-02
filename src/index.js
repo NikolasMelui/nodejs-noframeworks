@@ -1,9 +1,9 @@
-import fs from 'fs';
+// import fs from 'fs';
 import http from 'http';
-import https from 'https';
+// import https from 'https';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
-import _data from './lib/data';
+// import _data from './lib/data';
 import config from './config';
 
 const handlers = {
@@ -15,10 +15,10 @@ const routers = {
 	ping: handlers.ping,
 };
 
-const httpsServerOptions = {
-	key: fs.readFileSync('./src/ssl/key.pem'),
-	cert: fs.readFileSync('./src/ssl/cert.pem'),
-};
+// const httpsServerOptions = {
+// 	key: fs.readFileSync('./src/ssl/key.pem'),
+// 	cert: fs.readFileSync('./src/ssl/cert.pem'),
+// };
 
 const unifiedServer = (req, res) => {
 	const reqParsedUrl = url.parse(req.url, true);
@@ -31,7 +31,9 @@ const unifiedServer = (req, res) => {
 	const decoder = new StringDecoder('utf-8');
 	let reqPayload = '';
 
-	req.on('data', data => (reqPayload += decoder.write(data)));
+	req.on('data', function data() {
+		reqPayload += decoder.write(data);
+	});
 	req.on('end', () => {
 		reqPayload += decoder.end();
 
@@ -46,15 +48,15 @@ const unifiedServer = (req, res) => {
 			payload: reqPayload,
 		};
 
-		chosenHandler(data, (statusCode, payload) => {
-			statusCode = typeof statusCode === 'number' ? statusCode : 200;
-			payload = typeof payload === 'object' ? payload : {};
+		chosenHandler(data, (_statusCode, _payload) => {
+			const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
+			const payload = typeof _payload === 'object' ? _payload : {};
 			const payloadString = JSON.stringify(payload);
 			res.setHeader('Content-Type', 'application/json');
 			res.writeHead(statusCode);
 			res.end(payloadString);
 			global.console.log('Returning the response: ', statusCode, payloadString);
-			_data.create('test', 'newFile', payload, err => global.console.log(`This was the error ${err}`));
+			// _data.create('test', 'newFile', payload, err => global.console.log(`This was the error ${err}`));
 		});
 	});
 };
@@ -63,9 +65,9 @@ const httpServer = http.createServer((req, res) => {
 	unifiedServer(req, res);
 });
 
-const httpsServer = https.createServer(httpsServerOptions, (req, res) => {
-	unifiedServer(req, res);
-});
+// const httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+// 	unifiedServer(req, res);
+// });
 
 httpServer.listen(config.httpPort, () => global.console.log(`Server is listening on port: ${config.httpPort}.`));
-httpsServer.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
+// httpsServer.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
