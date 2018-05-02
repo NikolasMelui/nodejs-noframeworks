@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 
 const lib = {
+	baseDir: path.join(__dirname, '../.data'),
 	create: (dir, file, data, callback) => {
-		const baseDir = path.join(__dirname, '../.data');
-		fs.open(`${baseDir}/${dir}/${file}.json`, `wx`, (err, fileDescriptor) => {
+		fs.open(`${lib.baseDir}/${dir}/${file}.json`, `wx`, (err, fileDescriptor) => {
 			if (!err && fileDescriptor) {
 				const stringData = JSON.stringify(data);
 				fs.writeFile(fileDescriptor, stringData, _err => {
@@ -25,9 +25,10 @@ const lib = {
 			}
 		});
 	},
-	reade: (dir, file, callback) => {
-		global.console.log('WoW!');
-		callback();
+	read: (dir, file, callback) => {
+		fs.readFile(`${lib.baseDir}/${dir}/${file}.json`, 'utf8', (err, data) => {
+			callback(err, data);
+		});
 	},
 };
 
