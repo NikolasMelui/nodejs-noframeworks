@@ -1,9 +1,9 @@
 import fs from 'fs';
 import http from 'http';
-import url from 'url';
 import https from 'https';
+import url from 'url';
 import { StringDecoder } from 'string_decoder';
-// import _data from './lib/data';
+import _data from './lib/data';
 import config from './config';
 
 const handlers = {
@@ -54,6 +54,7 @@ const unifiedServer = (req, res) => {
 			res.writeHead(statusCode);
 			res.end(payloadString);
 			global.console.log('Returning the response: ', statusCode, payloadString);
+			_data.create('test', 'newFile', payload, err => global.console.log(`This was the error ${err}`));
 		});
 	});
 };
