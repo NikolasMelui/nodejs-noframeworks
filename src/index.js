@@ -4,12 +4,8 @@ import http from 'http';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
 // import _data from './lib/data';
+import handlers from './lib/handlers';
 import config from './config';
-
-const handlers = {
-	ping: (data, callback) => callback(200, { res: 'server is working' }),
-	notFound: (data, callback) => callback(404),
-};
 
 const routers = {
 	ping: handlers.ping,
