@@ -47,25 +47,29 @@ const handlers = {
 			if (curFirstName && curLastName && curPhone && curPassword && curTosAgreement) {
 				_data.read('users', curPhone, (err, data) => {
 					if (err) {
-						const curHashPassword = helpers.hash(curPassword);
+						const curHashedPassword = helpers.hash(curPassword);
 						// Create new user object
-						const userObject = {
-							firstName: curFirstName,
-							lastName: curLastName,
-							phone: curPhone,
-							hashedPassword: curHashPassword,
-							tosAgreement: true,
-						};
-						_data.create('users', curPhone, userObject, _err => {
-							if (!_err) {
-								callback(200);
-							} else {
-								global.console.log(_err);
-								callback(500, { Error: 'Could not create the new user.' });
-							}
-						});
+						if (curHashedPassword) {
+							const userObject = {
+								firstName: curFirstName,
+								lastName: curLastName,
+								phone: curPhone,
+								hashedPassword: curHashedPassword,
+								tosAgreement: true,
+							};
+							_data.create('users', curPhone, userObject, _err => {
+								if (!_err) {
+									callback(200);
+								} else {
+									global.console.log(_err);
+									callback(500, { Error: 'Could not create the new user.' });
+								}
+							});
+						} else {
+							callback(400, { Error: 'The user with that phone number is already exist.' });
+						}
 					} else {
-						callback(400, { Error: 'The user with that phone number is already exist.' });
+						callback(500, { Error: "Could not hash the user's password." });
 					}
 				});
 			} else {
