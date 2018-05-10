@@ -1,3 +1,5 @@
+import _data from './data';
+
 const handlers = {
 	/**
 	 * Handlers
@@ -42,6 +44,13 @@ const handlers = {
 					? data.payload.tosAgreement
 					: false;
 			if (firstName && lastName && phone && password && tosAgreement) {
+				_data.read('users', phone, (err, data) => {
+					if (err) {
+						const hashPassword = helpers.hash(password);
+					} else {
+						callback(400, { Error: 'The user with that phone number is already exist.' });
+					}
+				});
 			} else {
 				callback(400, { Error: 'Missing required fields.' });
 			}
