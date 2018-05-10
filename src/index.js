@@ -5,10 +5,12 @@ import url from 'url';
 import { StringDecoder } from 'string_decoder';
 // import _data from './lib/data';
 import handlers from './lib/handlers';
-import config from './config';
+import helpers from './lib/helpers';
+import config from './lib/config';
 
 const routers = {
 	ping: handlers.ping,
+	users: handlers.users,
 };
 
 // const httpsServerOptions = {
@@ -27,7 +29,8 @@ const unifiedServer = (req, res) => {
 	const decoder = new StringDecoder('utf-8');
 	let reqPayload = '';
 
-	req.on('data', function data() {
+	// @TODO: get new functional code for this chunk of stringDecoder code.
+	req.on('data', data => {
 		reqPayload += decoder.write(data);
 	});
 	req.on('end', () => {
@@ -41,8 +44,10 @@ const unifiedServer = (req, res) => {
 			queryStringObject: reqQueryStringObject,
 			method: reqMethod,
 			headers: reqHeaders,
-			payload: reqPayload,
+			payload: helpers.parseJsonToObject(reqPayload),
 		};
+
+		global.console.log(data);
 
 		chosenHandler(data, (_statusCode, _payload) => {
 			const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;

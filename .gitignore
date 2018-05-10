@@ -13,3 +13,5 @@ node_modules/
 *.tgz
 .yarn-integrity
 .env
+src/data/users/*
+src/data/test/*

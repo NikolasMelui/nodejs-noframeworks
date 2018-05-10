@@ -33,7 +33,7 @@ const handlers = {
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 12
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
@@ -45,7 +45,7 @@ const handlers = {
 					? data.payload.tosAgreement
 					: false;
 			if (curFirstName && curLastName && curPhone && curPassword && curTosAgreement) {
-				_data.read('users', curPhone, (err, data) => {
+				_data.read('users', curPhone, err => {
 					if (err) {
 						const curHashedPassword = helpers.hash(curPassword);
 						// Create new user object
@@ -66,13 +66,15 @@ const handlers = {
 								}
 							});
 						} else {
-							callback(400, { Error: 'The user with that phone number is already exist.' });
+							callback(400, { Error: "Could not hash the user's password." });
 						}
 					} else {
-						callback(500, { Error: "Could not hash the user's password." });
+						callback(500, { Error: 'The user with that phone number is already exist.' });
 					}
 				});
 			} else {
+				global.console.log(data.payload);
+				global.console.log(curFirstName, curLastName, curPhone, curPassword, curTosAgreement);
 				callback(400, { Error: 'Missing required fields.' });
 			}
 		},

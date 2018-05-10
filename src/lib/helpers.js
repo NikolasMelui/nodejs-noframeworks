@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import config from '../config';
+import config from './config';
 
 const helpers = {
 	hash: string => {
@@ -11,6 +11,14 @@ const helpers = {
 			return hash;
 		}
 		return false;
+	},
+	parseJsonToObject: _string => {
+		try {
+			const curObject = JSON.parse(_string);
+			return curObject;
+		} catch (err) {
+			return {};
+		}
 	},
 };
 

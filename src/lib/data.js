@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const lib = {
-	baseDir: path.join(__dirname, '../.data'),
+	baseDir: path.join(__dirname, '../data'),
 	create: (dir, file, data, callback) => {
 		fs.open(`${lib.baseDir}/${dir}/${file}.json`, `wx`, (err, fileDescriptor) => {
 			if (!err && fileDescriptor) {
