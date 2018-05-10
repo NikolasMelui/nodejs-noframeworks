@@ -1,4 +1,5 @@
 import _data from './data';
+import helpers from './helpers';
 
 const handlers = {
 	/**
@@ -46,7 +47,7 @@ const handlers = {
 			if (firstName && lastName && phone && password && tosAgreement) {
 				_data.read('users', phone, (err, data) => {
 					if (err) {
-						const hashPassword = helpers.hash(password);
+						const hashPassword = helpers.hash(password); // @TODO: Create new helpers file and hash function in it.
 					} else {
 						callback(400, { Error: 'The user with that phone number is already exist.' });
 					}
