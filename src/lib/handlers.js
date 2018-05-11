@@ -77,14 +77,14 @@ const handlers = {
 			}
 		},
 		get: (data, callback) => {
-			const phone =
+			const curPhone =
 				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 11
 					? data.queryStringObject.phone.trim()
 					: false;
-			if (phone) {
-				_data.read('users', phone, (err, __data) => {
+			if (curPhone) {
+				_data.read('users', curPhone, (err, __data) => {
 					if (!err && __data) {
-						/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["__data"] }] */
+						/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data'] }] */
 						delete __data.hashedPassword;
 						callback(200, __data);
 					} else {
@@ -96,7 +96,58 @@ const handlers = {
 			}
 		},
 		put: (data, callback) => {
-			callback();
+			const curFirstName =
+				typeof data.payload.firstName === 'string' && data.payload.firstName.trim().length > 0
+					? data.payload.firstName.trim()
+					: false;
+			const curLastName =
+				typeof data.payload.lastName === 'string' && data.payload.lastName.trim().length > 0
+					? data.payload.lastName.trim()
+					: false;
+			const curPhone =
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
+					? data.payload.phone.trim()
+					: false;
+			const curPassword =
+				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
+					? data.payload.password.trim()
+					: false;
+			const curTosAgreement =
+				typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true
+					? data.payload.tosAgreement
+					: false;
+			if (curPhone) {
+				if (curFirstName || curLastName || curPassword) {
+					_data.read('users', curPhone, (err, userData) => {
+						/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['userData'] }] */
+						if (!err && userData) {
+							if (curFirstName) {
+								userData.firstName = curFirstName;
+							}
+							if (curLastName) {
+								userData.lastName = curLastName;
+							}
+							if (curPassword) {
+								userData.hashedPassword = helpers.hash(curPassword);
+							}
+							_data.update('users', curPhone, userData, _err => {
+								if (!_err) {
+									callback(200);
+								} else {
+									global.console.log(_err);
+									callback(400, { Error: 'Could not update the user.' });
+								}
+							});
+						} else {
+							callback(400, { Error: 'The specified user does not exist.' });
+						}
+					});
+				} else {
+					callback(400, { Error: 'Missing fields to update.' });
+				}
+			} else {
+				callback(400, { Error: 'The specified user does not exist.' });
+			}
 		},
 		delete: (data, callback) => {
 			callback();
