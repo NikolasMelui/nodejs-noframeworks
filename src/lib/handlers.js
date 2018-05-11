@@ -33,7 +33,7 @@ const handlers = {
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 12
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
@@ -77,7 +77,23 @@ const handlers = {
 			}
 		},
 		get: (data, callback) => {
-			callback();
+			const phone =
+				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 11
+					? data.queryStringObject.phone.trim()
+					: false;
+			if (phone) {
+				_data.read('users', phone, (err, __data) => {
+					if (!err && __data) {
+						/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["__data"] }] */
+						delete __data.hashedPassword;
+						callback(200, __data);
+					} else {
+						callback(404);
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required field.' });
+			}
 		},
 		put: (data, callback) => {
 			callback();
