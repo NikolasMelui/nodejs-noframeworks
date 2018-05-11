@@ -221,7 +221,23 @@ const handlers = {
 				callback(400, { Error: 'Missing required fields.' });
 			}
 		},
-		get: (data, callback) => {},
+		get: (data, callback) => {
+			const id =
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length > 0
+					? data.queryStringObject
+					: false;
+			if (id) {
+				_data.read('tokens', id, (err, tokenData) => {
+					if (!err && tokenData) {
+						callback(200, tokenData);
+					} else {
+						callback(400);
+					}
+				});
+			} else {
+				callback(400, { Error: '' });
+			}
+		},
 		put: (data, callback) => {},
 		delete: (data, callback) => {},
 	},
