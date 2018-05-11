@@ -238,8 +238,8 @@ const handlers = {
 				callback(400, { Error: '' });
 			}
 		},
-		put: (data, callback) => {},
-		delete: (data, callback) => {},
+		// put: (data, callback) => {},
+		// delete: (data, callback) => {},
 	},
 };
 
