@@ -12,9 +12,9 @@ const helpers = {
 		}
 		return false;
 	},
-	parseJsonToObject: _string => {
+	parseJsonToObject: curString => {
 		try {
-			const curObject = JSON.parse(_string);
+			const curObject = JSON.parse(curString);
 			return curObject;
 		} catch (err) {
 			return {};

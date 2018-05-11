@@ -73,8 +73,6 @@ const handlers = {
 					}
 				});
 			} else {
-				global.console.log(data.payload);
-				global.console.log(curFirstName, curLastName, curPhone, curPassword, curTosAgreement);
 				callback(400, { Error: 'Missing required fields.' });
 			}
 		},
