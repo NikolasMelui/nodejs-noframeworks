@@ -88,6 +88,7 @@ const handlers = {
 						delete __data.hashedPassword;
 						callback(200, __data);
 					} else {
+						global.console.log(err);
 						callback(404);
 					}
 				});
@@ -111,10 +112,6 @@ const handlers = {
 			const curPassword =
 				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
 					? data.payload.password.trim()
-					: false;
-			const curTosAgreement =
-				typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true
-					? data.payload.tosAgreement
 					: false;
 			if (curPhone) {
 				if (curFirstName || curLastName || curPassword) {
@@ -150,7 +147,29 @@ const handlers = {
 			}
 		},
 		delete: (data, callback) => {
-			callback();
+			const curPhone =
+				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 11
+					? data.queryStringObject.phone.trim()
+					: false;
+			if (curPhone) {
+				_data.read('users', curPhone, (err, userData) => {
+					/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['userData'] }] */
+					if (!err && userData) {
+						_data.delete('users', curPhone, _err => {
+							if (!_err) {
+								callback(200);
+							} else {
+								global.console.log(_err);
+								callback(500, { Error: 'Could not delete the specified user.' });
+							}
+						});
+					} else {
+						callback(400, { Error: 'Could not find the specified user.' });
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required field.' });
+			}
 		},
 	},
 };
