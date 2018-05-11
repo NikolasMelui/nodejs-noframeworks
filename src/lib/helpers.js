@@ -2,23 +2,36 @@ import crypto from 'crypto';
 import config from './config';
 
 const helpers = {
-	hash: string => {
-		if (typeof string === 'string' && string.length > 0) {
-			const hash = crypto
+	hash: argString => {
+		if (typeof argString === 'string' && argString.length > 0) {
+			const curHash = crypto
 				.createHmac('sha256', config.hashingSecret)
-				.update(string)
+				.update(argString)
 				.digest('hex');
-			return hash;
+			return curHash;
 		}
 		return false;
 	},
-	parseJsonToObject: curString => {
+	parseJsonToObject: argString => {
 		try {
-			const curObject = JSON.parse(curString);
+			const curObject = JSON.parse(argString);
 			return curObject;
 		} catch (err) {
 			return {};
 		}
+	},
+	createRandomString: argStringLength => {
+		const curStringLength = typeof argStringLength === 'number' && argStringLength > 0 ? argStringLength : false;
+		if (curStringLength) {
+			const allChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+			let randomString = '';
+			for (let i = 1; i < curStringLength; i++) {
+				const randomChar = allChars.charAt(Math.floor(Math.random() * allChars.length));
+				randomString += randomChar;
+			}
+			return randomString;
+		}
+		return false;
 	},
 };
 

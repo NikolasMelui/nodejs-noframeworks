@@ -14,6 +14,14 @@ const handlers = {
 			callback(405);
 		}
 	},
+	tokens: (data, callback) => {
+		const acceptableMethods = ['post', 'get', 'put', 'delete'];
+		if (acceptableMethods.indexOf(data.method) > -1) {
+			handlers.sub_tokens[data.method](data, callback);
+		} else {
+			callback(405);
+		}
+	},
 	ping: (data, callback) => callback(200, { res: 'server is working' }),
 	notFound: (data, callback) => callback(404),
 
@@ -171,6 +179,51 @@ const handlers = {
 				callback(400, { Error: 'Missing required field.' });
 			}
 		},
+	},
+	sub_tokens: {
+		post: (data, callback) => {
+			const curPhone =
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
+					? data.payload.phone.trim()
+					: false;
+			const curPassword =
+				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
+					? data.payload.password.trim()
+					: false;
+			if (curPhone && curPassword) {
+				_data.read('users', curPhone, (err, userData) => {
+					if (!err && userData) {
+						const curHashedPassword = helpers.hash(curPassword);
+						if (userData.hashedPassword === curHashedPassword) {
+							const curTokenId = helpers.createRandomString(20);
+							const curExpires = Date.now() + 1000 * 60 * 60;
+							const tokenObject = {
+								phone: curPhone,
+								id: curTokenId,
+								expires: curExpires,
+							};
+							_data.create('tokens', curTokenId, tokenObject, _err => {
+								if (!_err) {
+									callback(200, tokenObject);
+								} else {
+									callback(500, { Error: 'Could not create the new token.' });
+								}
+							});
+							callback(200, tokenObject);
+						} else {
+							callback(400, { Error: 'Wrong password.' });
+						}
+					} else {
+						callback(400, { Error: 'Could not find the specified user.' });
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required fields.' });
+			}
+		},
+		get: (data, callback) => {},
+		put: (data, callback) => {},
+		delete: (data, callback) => {},
 	},
 };
 

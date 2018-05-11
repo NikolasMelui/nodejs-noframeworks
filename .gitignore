@@ -15,3 +15,4 @@ node_modules/
 .env
 src/data/users/*
 src/data/test/*
+src/data/tokens/*
