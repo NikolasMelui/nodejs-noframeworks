@@ -92,9 +92,8 @@ const handlers = {
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
-				const curToken =
-					typeof data.headers.token === 'string' && data.headers.token === 20 ? data.headers.token : false;
-				handlers.verifyToken(curToken, curPhone, tokenIsValid => {
+				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+				handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
 					if (tokenIsValid) {
 						_data.read('users', curPhone, (err, __data) => {
 							if (!err && __data) {
@@ -132,27 +131,34 @@ const handlers = {
 					: false;
 			if (curPhone) {
 				if (curFirstName || curLastName || curPassword) {
-					_data.read('users', curPhone, (err, userData) => {
-						if (!err && userData) {
-							if (curFirstName) {
-								userData.firstName = curFirstName;
-							}
-							if (curLastName) {
-								userData.lastName = curLastName;
-							}
-							if (curPassword) {
-								userData.hashedPassword = helpers.hash(curPassword);
-							}
-							_data.update('users', curPhone, userData, _err => {
-								if (!_err) {
-									callback(200);
+					const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+					handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
+						if (tokenIsValid) {
+							_data.read('users', curPhone, (err, userData) => {
+								if (!err && userData) {
+									if (curFirstName) {
+										userData.firstName = curFirstName;
+									}
+									if (curLastName) {
+										userData.lastName = curLastName;
+									}
+									if (curPassword) {
+										userData.hashedPassword = helpers.hash(curPassword);
+									}
+									_data.update('users', curPhone, userData, _err => {
+										if (!_err) {
+											callback(200);
+										} else {
+											global.console.log(_err);
+											callback(400, { Error: 'Could not update the user.' });
+										}
+									});
 								} else {
-									global.console.log(_err);
-									callback(400, { Error: 'Could not update the user.' });
+									callback(400, { Error: 'The specified user does not exist.' });
 								}
 							});
 						} else {
-							callback(400, { Error: 'The specified user does not exist.' });
+							callback(405, { Error: 'Wrong header token.' });
 						}
 					});
 				} else {
@@ -168,18 +174,25 @@ const handlers = {
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
-				_data.read('users', curPhone, (err, userData) => {
-					if (!err && userData) {
-						_data.delete('users', curPhone, _err => {
-							if (!_err) {
-								callback(200);
+				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+				handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
+					if (tokenIsValid) {
+						_data.read('users', curPhone, (err, userData) => {
+							if (!err && userData) {
+								_data.delete('users', curPhone, _err => {
+									if (!_err) {
+										callback(200);
+									} else {
+										global.console.log(_err);
+										callback(500, { Error: 'Could not delete the specified user.' });
+									}
+								});
 							} else {
-								global.console.log(_err);
-								callback(500, { Error: 'Could not delete the specified user.' });
+								callback(400, { Error: 'Could not find the specified user.' });
 							}
 						});
 					} else {
-						callback(400, { Error: 'Could not find the specified user.' });
+						callback(405, { Error: 'Wrong header token.' });
 					}
 				});
 			} else {
