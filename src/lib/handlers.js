@@ -92,13 +92,21 @@ const handlers = {
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
-				_data.read('users', curPhone, (err, __data) => {
-					if (!err && __data) {
-						delete __data.hashedPassword;
-						callback(200, __data);
+				const curToken =
+					typeof data.headers.token === 'string' && data.headers.token === 20 ? data.headers.token : false;
+				handlers.verifyToken(curToken, curPhone, tokenIsValid => {
+					if (tokenIsValid) {
+						_data.read('users', curPhone, (err, __data) => {
+							if (!err && __data) {
+								delete __data.hashedPassword;
+								callback(200, __data);
+							} else {
+								global.console.log(err);
+								callback(404);
+							}
+						});
 					} else {
-						global.console.log(err);
-						callback(404);
+						callback(405, { Error: 'Wrong header token.' });
 					}
 				});
 			} else {
@@ -289,6 +297,19 @@ const handlers = {
 			} else {
 				callback(400, { Error: 'Missing required field.' });
 			}
+		},
+		verifyToken: (curTokenId, curPhone, callback) => {
+			_data.read('tokens', curTokenId, (err, tokenData) => {
+				if (!err && tokenData) {
+					if (tokenData.phone === curPhone && tokenData.expires > Date.now()) {
+						callback(true);
+					} else {
+						callback(false);
+					}
+				} else {
+					callback(false);
+				}
+			});
 		},
 	},
 };
