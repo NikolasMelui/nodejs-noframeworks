@@ -266,7 +266,30 @@ const handlers = {
 				callback(400, { Error: 'Missing required fields.' });
 			}
 		},
-		// delete: (data, callback) => {},
+		delete: (data, callback) => {
+			const curTokenId =
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+					? data.queryStringObject.id.trim()
+					: false;
+			if (curTokenId) {
+				_data.read('tokens', curTokenId, (err, tokenData) => {
+					if (!err && tokenData) {
+						_data.delete('tokens', curTokenId, _err => {
+							if (!_err) {
+								callback(200);
+							} else {
+								global.console.log(_err);
+								callback(500, { Error: 'Could not delete the specified token.' });
+							}
+						});
+					} else {
+						callback(400, { Error: 'Could not find the specified token.' });
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required field.' });
+			}
+		},
 	},
 };
 
