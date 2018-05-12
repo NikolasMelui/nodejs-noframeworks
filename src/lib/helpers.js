@@ -25,7 +25,7 @@ const helpers = {
 		if (curStringLength) {
 			const allChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 			let randomString = '';
-			for (let i = 1; i < curStringLength; i + 1) {
+			for (let i = 0; i < curStringLength; i += 1) {
 				const randomChar = allChars.charAt(Math.floor(Math.random() * allChars.length));
 				randomString += randomChar;
 			}

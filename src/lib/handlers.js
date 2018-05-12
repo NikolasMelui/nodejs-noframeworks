@@ -1,6 +1,8 @@
 import _data from './data';
 import helpers from './helpers';
 
+/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data', 'userData', 'tokenData'] }] */
+
 const handlers = {
 	/**
 	 * Handlers
@@ -92,7 +94,6 @@ const handlers = {
 			if (curPhone) {
 				_data.read('users', curPhone, (err, __data) => {
 					if (!err && __data) {
-						/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data'] }] */
 						delete __data.hashedPassword;
 						callback(200, __data);
 					} else {
@@ -124,7 +125,6 @@ const handlers = {
 			if (curPhone) {
 				if (curFirstName || curLastName || curPassword) {
 					_data.read('users', curPhone, (err, userData) => {
-						/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['userData'] }] */
 						if (!err && userData) {
 							if (curFirstName) {
 								userData.firstName = curFirstName;
@@ -161,7 +161,6 @@ const handlers = {
 					: false;
 			if (curPhone) {
 				_data.read('users', curPhone, (err, userData) => {
-					/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['userData'] }] */
 					if (!err && userData) {
 						_data.delete('users', curPhone, _err => {
 							if (!_err) {
@@ -223,7 +222,7 @@ const handlers = {
 		},
 		get: (data, callback) => {
 			const curTokenId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length > 0
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
 			if (curTokenId) {
@@ -238,7 +237,38 @@ const handlers = {
 				callback(400, { Error: 'Missing required field.' });
 			}
 		},
-		// put: (data, callback) => {},
+		put: (data, callback) => {
+			const curTokenId =
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+					? data.queryStringObject.id.trim()
+					: false;
+			const curTokenExtend =
+				typeof data.queryStringObject.extend === 'boolean' && data.queryStringObject.extend
+					? data.queryStringObject.extend
+					: false;
+			if (curTokenExtend && curTokenId) {
+				_data.read('tokens', curTokenId, (err, tokenData) => {
+					if (!err && tokenData) {
+						if (tokenData.expires > Date.now()) {
+							tokenData.expires = Date.now() + 1000 * 60 * 60;
+							_data.update('tokens', curTokenId, tokenData, _err => {
+								if (!_err) {
+									callback(200);
+								} else {
+									callback(500, { Error: 'Could not update the specified token.' });
+								}
+							});
+						} else {
+							callback(400, 'The specified token is already expired.');
+						}
+					} else {
+						callback(400, { Error: 'Could not read the specified token.' });
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required fields.' });
+			}
+		},
 		// delete: (data, callback) => {},
 	},
 };
