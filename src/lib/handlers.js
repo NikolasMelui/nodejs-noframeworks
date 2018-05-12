@@ -222,12 +222,12 @@ const handlers = {
 			}
 		},
 		get: (data, callback) => {
-			const id =
+			const curTokenId =
 				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length > 0
-					? data.queryStringObject
+					? data.queryStringObject.id.trim()
 					: false;
-			if (id) {
-				_data.read('tokens', id, (err, tokenData) => {
+			if (curTokenId) {
+				_data.read('tokens', curTokenId, (err, tokenData) => {
 					if (!err && tokenData) {
 						callback(200, tokenData);
 					} else {
