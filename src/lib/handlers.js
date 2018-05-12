@@ -235,7 +235,7 @@ const handlers = {
 					}
 				});
 			} else {
-				callback(400, { Error: '' });
+				callback(400, { Error: 'Missing required field.' });
 			}
 		},
 		// put: (data, callback) => {},
