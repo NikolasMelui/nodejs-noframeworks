@@ -208,7 +208,6 @@ const handlers = {
 									callback(500, { Error: 'Could not create the new token.' });
 								}
 							});
-							callback(200, tokenObject);
 						} else {
 							callback(400, { Error: 'Wrong password.' });
 						}
@@ -239,13 +238,11 @@ const handlers = {
 		},
 		put: (data, callback) => {
 			const curTokenId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
-					? data.queryStringObject.id.trim()
+				typeof data.payload.id === 'string' && data.payload.id.trim().length === 20
+					? data.payload.id.trim()
 					: false;
 			const curTokenExtend =
-				typeof data.queryStringObject.extend === 'boolean' && data.queryStringObject.extend
-					? data.queryStringObject.extend
-					: false;
+				typeof data.payload.extend === 'boolean' && data.payload.extend ? data.payload.extend : false;
 			if (curTokenExtend && curTokenId) {
 				_data.read('tokens', curTokenId, (err, tokenData) => {
 					if (!err && tokenData) {
