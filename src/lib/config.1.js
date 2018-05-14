@@ -4,12 +4,14 @@ const envs = {
 		httpsPort: 3001,
 		env: 'dev',
 		hashingSecret: 'secretKey',
+		maxChecks: 5,
 	},
 	prod: {
 		httpPort: 5000,
 		httpsPort: 5001,
 		env: 'prod',
 		hashingSecret: 'secretKey',
+		maxChecks: 5,
 	},
 };
 
