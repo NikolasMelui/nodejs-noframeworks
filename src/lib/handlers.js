@@ -335,11 +335,33 @@ const handlers = {
 	},
 	sub_checks: {
 		post: (data, callback) => {
-			const protocol =
+			const curProtocol =
 				typeof data.payload.protocol === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1
 					? data.payload.protocol
 					: false;
-			callback(protocol);
+			const curUrl =
+				typeof data.payload.url === 'string' && data.payload.protocol.trim().length > 0
+					? data.payload.protocol.trim()
+					: false;
+			const curMethod =
+				typeof data.payload.method === 'string' &&
+				['post', 'get', 'put', 'delete'].indexOf(data.payload.method) > -1
+					? data.payload.method
+					: false;
+			const curSuccessCodes =
+				typeof data.payload.seccessCodes === 'object' &&
+				data.payload.successCodes instanceof Array &&
+				data.payload.successCodes.length > 0
+					? data.payload.successCodes
+					: false;
+			const curTimeoutSeconds =
+				typeof data.payload.timeoutSeconds === 'number' &&
+				data.payload.timeoutSeconds % 1 === 0 &&
+				data.payload.timeoutSeconds >= 1 &&
+				data.payload.timeoutSeconds <= 5
+					? data.payload.timeoutSeconds
+					: false;
+			callback(curProtocol, curUrl, curMethod, curSuccessCodes, curTimeoutSeconds);
 		},
 	},
 };
