@@ -335,7 +335,11 @@ const handlers = {
 	},
 	sub_checks: {
 		post: (data, callback) => {
-			callback();
+			const protocol =
+				typeof data.payload.protocol === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1
+					? data.payload.protocol
+					: false;
+			callback(protocol);
 		},
 	},
 };
