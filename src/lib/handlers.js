@@ -361,7 +361,21 @@ const handlers = {
 				data.payload.timeoutSeconds <= 5
 					? data.payload.timeoutSeconds
 					: false;
-			callback(curProtocol, curUrl, curMethod, curSuccessCodes, curTimeoutSeconds);
+			if (curProtocol && curUrl && curMethod && curSuccessCodes && curTimeoutSeconds) {
+				// Get the token from the headers
+				const curToken = data.headers.token === 'string' ? data.headers.token : false;
+				// Lookup the user by reading the token
+				_data.read('tokens', curToken, (err, tokenData) => {
+					if (!err && tokenData) {
+						const userPhone = tokenData.phone;
+					} else {
+						// Non authorized status code send back
+						callback(403);
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing require fields or inputs are invalid.' });
+			}
 		},
 	},
 };
