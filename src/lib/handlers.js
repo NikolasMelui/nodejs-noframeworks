@@ -368,6 +368,13 @@ const handlers = {
 				_data.read('tokens', curToken, (err, tokenData) => {
 					if (!err && tokenData) {
 						const userPhone = tokenData.phone;
+						// Lookup the user data
+						_data.read('users', userPhone, (_err, userData) => {
+							if (!_err && userData) {
+							} else {
+								callback(403);
+							}
+						});
 					} else {
 						// Non authorized status code send back
 						callback(403);
