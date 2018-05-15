@@ -1,5 +1,6 @@
 import _data from './data';
 import helpers from './helpers';
+import config from './config';
 
 /* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data', 'userData', 'tokenData'] }] */
 
@@ -367,10 +368,54 @@ const handlers = {
 				// Lookup the user by reading the token
 				_data.read('tokens', curToken, (err, tokenData) => {
 					if (!err && tokenData) {
-						const userPhone = tokenData.phone;
+						const curUserPhone = tokenData.phone;
 						// Lookup the user data
-						_data.read('users', userPhone, (_err, userData) => {
+						_data.read('users', curUserPhone, (_err, userData) => {
 							if (!_err && userData) {
+								const curUserChecks =
+									typeof userData.checks === 'object' && userData.checks instanceof Array
+										? userData.checks
+										: [];
+								// Verify that the user has less then the number of max-checks-per-user
+								if (curUserChecks.length < config.maxChecks) {
+									// Create the random id for the check
+									const curCheckId = helpers.createRandomString(20);
+									// Create the check object and include the users phone
+									const checkObject = {
+										id: curCheckId,
+										userPhone: curUserPhone,
+										protocol: curProtocol,
+										url: curUrl,
+										method: curMethod,
+										successCodes: curSuccessCodes,
+										timeoutSeconds: curTimeoutSeconds,
+									};
+									// Save the object
+									_data.create('checks', curCheckId, checkObject, __err => {
+										if (!__err) {
+											// Add the check id to the user's object
+											userData.checks = curUserChecks;
+											userData.checks.push(curCheckId);
+											// Save the new user data
+											_data.update('users', curUserPhone, userData, ___err => {
+												if (___err) {
+													// Return the data about the new check
+													callback(200, checkObject);
+												} else {
+													callback(500, {
+														Error: 'Could not update the user with the new check.',
+													});
+												}
+											});
+										} else {
+											callback(500, { Error: 'Could not create the new check.' });
+										}
+									});
+								} else {
+									callback(400, {
+										Error: `The user already has the maximum number of cecks: ${config.maxChecks}`,
+									});
+								}
 							} else {
 								callback(403);
 							}
