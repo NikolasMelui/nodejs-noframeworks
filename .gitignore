@@ -16,3 +16,4 @@ node_modules/
 src/data/users/*
 src/data/test/*
 src/data/tokens/*
+src/data/checks/*
