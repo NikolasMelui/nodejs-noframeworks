@@ -350,8 +350,8 @@ const handlers = {
 					? data.payload.protocol
 					: false;
 			const curUrl =
-				typeof data.payload.url === 'string' && data.payload.protocol.trim().length > 0
-					? data.payload.protocol.trim()
+				typeof data.payload.url === 'string' && data.payload.url.trim().length > 0
+					? data.payload.url.trim()
 					: false;
 			const curMethod =
 				typeof data.payload.method === 'string' &&
@@ -359,7 +359,7 @@ const handlers = {
 					? data.payload.method
 					: false;
 			const curSuccessCodes =
-				typeof data.payload.seccessCodes === 'object' &&
+				typeof data.payload.successCodes === 'object' &&
 				data.payload.successCodes instanceof Array &&
 				data.payload.successCodes.length > 0
 					? data.payload.successCodes
@@ -373,7 +373,7 @@ const handlers = {
 					: false;
 			if (curProtocol && curUrl && curMethod && curSuccessCodes && curTimeoutSeconds) {
 				// Get the token from the headers
-				const curToken = data.headers.token === 'string' ? data.headers.token : false;
+				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
 				// Lookup the user by reading the token
 				_data.read('tokens', curToken, (err, tokenData) => {
 					if (!err && tokenData) {
@@ -407,7 +407,7 @@ const handlers = {
 											userData.checks.push(curCheckId);
 											// Save the new user data
 											_data.update('users', curUserPhone, userData, ___err => {
-												if (___err) {
+												if (!___err) {
 													// Return the data about the new check
 													callback(200, checkObject);
 												} else {
@@ -422,7 +422,7 @@ const handlers = {
 									});
 								} else {
 									callback(400, {
-										Error: `The user already has the maximum number of cecks: ${config.maxChecks}`,
+										Error: `The user already has the maximum number of checks: ${config.maxChecks}`,
 									});
 								}
 							} else {
