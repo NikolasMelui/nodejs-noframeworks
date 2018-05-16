@@ -44,7 +44,7 @@ const lib = {
 		fs.open(`${lib.baseDir}/${dir}/${file}.json`, 'r+', (err, fileDescriptor) => {
 			if (!err && fileDescriptor) {
 				const stringData = JSON.stringify(data);
-				fs.truncate(fileDescriptor, _err => {
+				fs.ftruncate(fileDescriptor, _err => {
 					if (!_err) {
 						fs.writeFile(fileDescriptor, stringData, __err => {
 							if (!__err) {
