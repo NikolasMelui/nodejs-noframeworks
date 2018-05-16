@@ -1,9 +1,18 @@
+/**
+ * Dependences
+ */
 import _data from './data';
 import helpers from './helpers';
 import config from './config';
 
+/**
+ * Add some eslint rules for reassign parametres
+ */
 /* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data', 'userData', 'tokenData'] }] */
 
+/**
+ * Handlers
+ */
 const handlers = {
 	/**
 	 * Handlers
