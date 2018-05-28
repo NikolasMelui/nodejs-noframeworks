@@ -438,6 +438,30 @@ const handlers = {
 				callback(400, { Error: 'Missing require fields or inputs are invalid.' });
 			}
 		},
+		get: (data, callback) => {
+			const id =
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+					? data.queryStringObject.id.trim()
+					: false;
+			if (id) {
+				_data.read('checks', id, (err, checkData) => {
+					if (!err && checkData) {
+						const token = typeof data.headers.token === 'string' ? data.headers.token : false;
+						handlers.sub_tokens.verifyToken(token, checkData.userPhone, tokenIsValid => {
+							if (tokenIsValid) {
+								callback(200, checkData);
+							} else {
+								callback(403);
+							}
+						});
+					} else {
+						callback(404);
+					}
+				});
+			} else {
+				callback(400, { Error: 'Missing required fields.' });
+			}
+		},
 	},
 };
 
