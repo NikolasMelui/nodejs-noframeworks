@@ -8,7 +8,7 @@ import config from './config';
 /**
  * Add some eslint rules for reassign parametres
  */
-/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data', 'userData', 'tokenData'] }] */
+/* eslint no-param-reassign: ['error', { 'props': true, 'ignorePropertyModificationsFor': ['__data', 'userData', 'tokenData', 'checkData'] }] */
 
 /**
  * Handlers
@@ -82,18 +82,18 @@ const handlers = {
 									callback(200);
 								} else {
 									global.console.log(_err);
-									callback(500, { Error: 'Could not create the new user.' });
+									callback(500, { Error: 'Could not create the new user' });
 								}
 							});
 						} else {
-							callback(400, { Error: "Could not hash the user's password." });
+							callback(400, { Error: "Could not hash the user's password" });
 						}
 					} else {
-						callback(500, { Error: 'The user with that phone number is already exist.' });
+						callback(500, { Error: 'The user with that phone number is already exist' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required fields.' });
+				callback(400, { Error: 'Missing required fields' });
 			}
 		},
 		get: (data, callback) => {
@@ -115,11 +115,11 @@ const handlers = {
 							}
 						});
 					} else {
-						callback(405, { Error: 'Wrong header token.' });
+						callback(405, { Error: 'Wrong header token' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required field.' });
+				callback(400, { Error: 'Missing required field' });
 			}
 		},
 		put: (data, callback) => {
@@ -160,22 +160,22 @@ const handlers = {
 											callback(200);
 										} else {
 											global.console.log(_err);
-											callback(400, { Error: 'Could not update the user.' });
+											callback(400, { Error: 'Could not update the user' });
 										}
 									});
 								} else {
-									callback(400, { Error: 'The specified user does not exist.' });
+									callback(400, { Error: 'The specified user does not exist' });
 								}
 							});
 						} else {
-							callback(405, { Error: 'Wrong header token.' });
+							callback(405, { Error: 'Wrong header token' });
 						}
 					});
 				} else {
-					callback(400, { Error: 'Missing fields to update.' });
+					callback(400, { Error: 'Missing fields to update' });
 				}
 			} else {
-				callback(400, { Error: 'The specified user does not exist.' });
+				callback(400, { Error: 'The specified user does not exist' });
 			}
 		},
 		delete: (data, callback) => {
@@ -194,19 +194,19 @@ const handlers = {
 										callback(200);
 									} else {
 										global.console.log(_err);
-										callback(500, { Error: 'Could not delete the specified user.' });
+										callback(500, { Error: 'Could not delete the specified user' });
 									}
 								});
 							} else {
-								callback(400, { Error: 'Could not find the specified user.' });
+								callback(400, { Error: 'Could not find the specified user' });
 							}
 						});
 					} else {
-						callback(405, { Error: 'Wrong header token.' });
+						callback(405, { Error: 'Wrong header token' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required field.' });
+				callback(400, { Error: 'Missing required field' });
 			}
 		},
 	},
@@ -236,18 +236,18 @@ const handlers = {
 								if (!_err) {
 									callback(200, tokenObject);
 								} else {
-									callback(500, { Error: 'Could not create the new token.' });
+									callback(500, { Error: 'Could not create the new token' });
 								}
 							});
 						} else {
-							callback(400, { Error: 'Wrong password.' });
+							callback(400, { Error: 'Wrong password' });
 						}
 					} else {
-						callback(400, { Error: 'Could not find the specified user.' });
+						callback(400, { Error: 'Could not find the specified user' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required fields.' });
+				callback(400, { Error: 'Missing required fields' });
 			}
 		},
 		get: (data, callback) => {
@@ -264,7 +264,7 @@ const handlers = {
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required field.' });
+				callback(400, { Error: 'Missing required field' });
 			}
 		},
 		put: (data, callback) => {
@@ -283,18 +283,18 @@ const handlers = {
 								if (!_err) {
 									callback(200);
 								} else {
-									callback(500, { Error: 'Could not update the specified token.' });
+									callback(500, { Error: 'Could not update the specified token' });
 								}
 							});
 						} else {
-							callback(400, 'The specified token is already expired.');
+							callback(400, 'The specified token is already expired');
 						}
 					} else {
-						callback(400, { Error: 'Could not read the specified token.' });
+						callback(400, { Error: 'Could not read the specified token' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required fields.' });
+				callback(400, { Error: 'Missing required fields' });
 			}
 		},
 		delete: (data, callback) => {
@@ -310,15 +310,15 @@ const handlers = {
 								callback(200);
 							} else {
 								global.console.log(_err);
-								callback(500, { Error: 'Could not delete the specified token.' });
+								callback(500, { Error: 'Could not delete the specified token' });
 							}
 						});
 					} else {
-						callback(400, { Error: 'Could not find the specified token.' });
+						callback(400, { Error: 'Could not find the specified token' });
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required field.' });
+				callback(400, { Error: 'Missing required field' });
 			}
 		},
 		verifyToken: (curTokenId, curPhone, callback) => {
@@ -412,12 +412,12 @@ const handlers = {
 													callback(200, checkObject);
 												} else {
 													callback(500, {
-														Error: 'Could not update the user with the new check.',
+														Error: 'Could not update the user with the new check',
 													});
 												}
 											});
 										} else {
-											callback(500, { Error: 'Could not create the new check.' });
+											callback(500, { Error: 'Could not create the new check' });
 										}
 									});
 								} else {
@@ -435,7 +435,7 @@ const handlers = {
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing require fields or inputs are invalid.' });
+				callback(400, { Error: 'Missing require fields or inputs are invalid' });
 			}
 		},
 		get: (data, callback) => {
@@ -459,9 +459,14 @@ const handlers = {
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing required fields.' });
+				callback(400, { Error: 'Missing required fields' });
 			}
 		},
+		/**
+		 * sub_checks: put
+		 * Required data: id
+		 * Optional data: protocol, url, method, successCodes, timeoutSeconds
+		 */
 		put: (data, callback) => {
 			const curId =
 				typeof data.payload.id === 'string' && data.payload.id.trim().length === 20
@@ -493,28 +498,54 @@ const handlers = {
 				data.payload.timeoutSeconds <= 5
 					? data.payload.timeoutSeconds
 					: false;
-			// if (curId) {
-			// 	_data.read('checks', curId, (err, checkData) => {
-			// 		if (!err && checkData) {
-			// 			if (tokenData.expires > Date.now()) {
-			// 				tokenData.expires = Date.now() + 1000 * 60 * 60;
-			// 				_data.update('tokens', curTokenId, tokenData, _err => {
-			// 					if (!_err) {
-			// 						callback(200);
-			// 					} else {
-			// 						callback(500, { Error: 'Could not update the specified token.' });
-			// 					}
-			// 				});
-			// 			} else {
-			// 				callback(400, 'The specified token is already expired.');
-			// 			}
-			// 		} else {
-			// 			callback(400, { Error: 'Could not read the specified token.' });
-			// 		}
-			// 	});
-			// } else {
-			// 	callback(400, { Error: 'Missing required fields.' });
-			// }
+			// Check to make sure id is valid
+			if (curId) {
+				// Check to make sure one or more optional fields has been sent
+				if (curProtocol || curUrl || curMethod || curSuccessCodes || curTimeoutSeconds) {
+					// Lookup the check
+					_data.read('checks', curId, (err, checkData) => {
+						if (!err && checkData) {
+							// Get the token from the headers
+							const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+							// Verify token
+							handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
+								if (tokenIsValid) {
+									if (curProtocol) {
+										checkData.protocol = curProtocol;
+									}
+									if (curUrl) {
+										checkData.url = curUrl;
+									}
+									if (curMethod) {
+										checkData.method = curMethod;
+									}
+									if (curSuccessCodes) {
+										checkData.successCodes = curSuccessCodes;
+									}
+									if (curTimeoutSeconds) {
+										checkData.timeoutSeconds = curTimeoutSeconds;
+									}
+									_data.update('checks', curId, checkData, _err => {
+										if (!_err) {
+											callback(200);
+										} else {
+											callback(500, { Error: 'Could not update the check' });
+										}
+									});
+								} else {
+									callback(400, { Error: 'The token is invalid' });
+								}
+							});
+						} else {
+							callback(403);
+						}
+					});
+				} else {
+					callback(400, { Error: 'Missing field to update' });
+				}
+			} else {
+				callback(400, { Error: 'Missing required field' });
+			}
 		},
 	},
 };
