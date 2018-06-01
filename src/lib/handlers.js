@@ -191,7 +191,37 @@ const handlers = {
 							if (!err && userData) {
 								_data.delete('users', curPhone, _err => {
 									if (!_err) {
-										callback(200);
+										// Delete each of the checks associated with the user
+										const curUserChecks =
+											typeof userData.checks === 'object' && userData.checks instanceof Array
+												? userData.checks
+												: [];
+										const checksToDelete = curUserChecks.length;
+										if (checksToDelete > 0) {
+											let checksDeleted = 0;
+											let deletionErrors = false;
+											curUserChecks.forEach(curCheckId => {
+												_data.delete('checks', curCheckId, __err => {
+													if (__err) {
+														deletionErrors = true;
+													}
+													checksDeleted += 1;
+													if (checksDeleted === checksToDelete) {
+														if (!deletionErrors) {
+															callback(200);
+														} else {
+															callback(500, {
+																Error:
+																	"Error's encountered while attempting to delete all of the user's checks. All checks may not have been deleted from the system successfylly.",
+															});
+														}
+													}
+												});
+											});
+										} else {
+											// There is nothing left for us to do
+											callback(200);
+										}
 									} else {
 										global.console.log(_err);
 										callback(500, { Error: 'Could not delete the specified user' });
