@@ -547,6 +547,67 @@ const handlers = {
 				callback(400, { Error: 'Missing required field' });
 			}
 		},
+		/**
+		 * sub_checks: delete
+		 * Required data: id
+		 * Optional data: none
+		 */
+		delete: (data, callback) => {
+			const curId =
+				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+					? data.queryStringObject.id.trim()
+					: false;
+			if (curId) {
+				_data.read('checks', curId, (err, checkData) => {
+					if (!err && checkData) {
+						const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+						handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
+							if (tokenIsValid) {
+								// Delete the check data
+								_data.delete('checks', curId, _err => {
+									if (!_err) {
+										_data.read('users', checkData.userPhone, (__err, userData) => {
+											if (!__err && userData) {
+												const curUserChecks =
+													typeof userData.checks === 'object' &&
+													userData.checks instanceof Array
+														? userData.checks
+														: [];
+												const curCheckPosition = curUserChecks.indexOf(curId);
+												if (curCheckPosition > -1) {
+													curUserChecks.splice(curCheckPosition, 1);
+													_data.update('users', checkData.userPhone, userData, ___err => {
+														if (!___err) {
+															callback(200);
+														} else {
+															callback(500, { Error: 'Could not update the user' });
+														}
+													});
+												} else {
+													callback(500, { Error: 'Could not find the check' });
+												}
+											} else {
+												callback(500, {
+													Error: 'Could not find the user who created the check',
+												});
+											}
+										});
+									} else {
+										callback(500, { Error: 'Could not delete the current check' });
+									}
+								});
+							} else {
+								callback(403);
+							}
+						});
+					} else {
+						callback(400, { Error: 'Wrong id' });
+					}
+				});
+			} else {
+				callback(400, { Error: 'Invalid token' });
+			}
+		},
 	},
 };
 
