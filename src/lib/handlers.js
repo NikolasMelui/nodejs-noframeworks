@@ -439,15 +439,15 @@ const handlers = {
 			}
 		},
 		get: (data, callback) => {
-			const id =
+			const curId =
 				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
-			if (id) {
-				_data.read('checks', id, (err, checkData) => {
+			if (curId) {
+				_data.read('checks', curId, (err, checkData) => {
 					if (!err && checkData) {
-						const token = typeof data.headers.token === 'string' ? data.headers.token : false;
-						handlers.sub_tokens.verifyToken(token, checkData.userPhone, tokenIsValid => {
+						const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+						handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
 							if (tokenIsValid) {
 								callback(200, checkData);
 							} else {
@@ -461,6 +461,60 @@ const handlers = {
 			} else {
 				callback(400, { Error: 'Missing required fields.' });
 			}
+		},
+		put: (data, callback) => {
+			const curId =
+				typeof data.payload.id === 'string' && data.payload.id.trim().length === 20
+					? data.payload.id.trim()
+					: false;
+			const curProtocol =
+				typeof data.payload.protocol === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1
+					? data.payload.protocol
+					: false;
+			const curUrl =
+				typeof data.payload.url === 'string' && data.payload.url.trim().length > 0
+					? data.payload.url.trim()
+					: false;
+			const curMethod =
+				typeof data.payload.method === 'string' &&
+				['post', 'get', 'put', 'delete'].indexOf(data.payload.method) > -1
+					? data.payload.method
+					: false;
+			const curSuccessCodes =
+				typeof data.payload.successCodes === 'object' &&
+				data.payload.successCodes instanceof Array &&
+				data.payload.successCodes.length > 0
+					? data.payload.successCodes
+					: false;
+			const curTimeoutSeconds =
+				typeof data.payload.timeoutSeconds === 'number' &&
+				data.payload.timeoutSeconds % 1 === 0 &&
+				data.payload.timeoutSeconds >= 1 &&
+				data.payload.timeoutSeconds <= 5
+					? data.payload.timeoutSeconds
+					: false;
+			// if (curId) {
+			// 	_data.read('checks', curId, (err, checkData) => {
+			// 		if (!err && checkData) {
+			// 			if (tokenData.expires > Date.now()) {
+			// 				tokenData.expires = Date.now() + 1000 * 60 * 60;
+			// 				_data.update('tokens', curTokenId, tokenData, _err => {
+			// 					if (!_err) {
+			// 						callback(200);
+			// 					} else {
+			// 						callback(500, { Error: 'Could not update the specified token.' });
+			// 					}
+			// 				});
+			// 			} else {
+			// 				callback(400, 'The specified token is already expired.');
+			// 			}
+			// 		} else {
+			// 			callback(400, { Error: 'Could not read the specified token.' });
+			// 		}
+			// 	});
+			// } else {
+			// 	callback(400, { Error: 'Missing required fields.' });
+			// }
 		},
 	},
 };
