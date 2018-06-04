@@ -53,7 +53,7 @@ const handlers = {
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
@@ -98,7 +98,7 @@ const handlers = {
 		},
 		get: (data, callback) => {
 			const curPhone =
-				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 11
+				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 10
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
@@ -132,7 +132,7 @@ const handlers = {
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
@@ -180,7 +180,7 @@ const handlers = {
 		},
 		delete: (data, callback) => {
 			const curPhone =
-				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 11
+				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 10
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
@@ -243,7 +243,7 @@ const handlers = {
 	sub_tokens: {
 		post: (data, callback) => {
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 11
+				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
