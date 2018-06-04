@@ -5,6 +5,11 @@ const envs = {
 		env: 'dev',
 		hashingSecret: 'secretKey',
 		maxChecks: 5,
+		twilio: {
+			accountSid: '',
+			authToken: '',
+			fromPhone: '',
+		},
 	},
 	prod: {
 		httpPort: 5000,
@@ -12,6 +17,11 @@ const envs = {
 		env: 'prod',
 		hashingSecret: 'secretKey',
 		maxChecks: 5,
+		twilio: {
+			accountSid: '',
+			authToken: '',
+			fromPhone: '',
+		},
 	},
 };
 
