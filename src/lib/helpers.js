@@ -39,15 +39,17 @@ const helpers = {
 	// Send an SMS message via Twilio
 	sendTwilioSms: (phone, message, callback) => {
 		// Validate parametres
-		phone = typeof phone === 'string' && phone.trim().length === 10 ? phone.trim() : false;
-		message =
-			typeof msg === 'string' && phone.trim().length > 0 && phone.trim().length <= 1600 ? phone.trim() : false;
-		if (phone && message) {
+		const curPhone = typeof phone === 'string' && phone.trim().length === 10 ? phone.trim() : false;
+		const curMessage =
+			typeof message === 'string' && message.trim().length > 0 && message.trim().length <= 1600
+				? message.trim()
+				: false;
+		if (curPhone && curMessage) {
 			// Configure the request payload
 			const payload = {
 				From: config.twilio.fromPhone,
-				To: `+1 ${config.twilio.toPhone}`,
-				Body: message,
+				To: `+7${curPhone}`,
+				Body: curMessage,
 			};
 
 			// Stringify the payload
@@ -55,10 +57,10 @@ const helpers = {
 
 			// Configure the request details
 			const requestDetails = {
-				protocol: 'https',
+				protocol: 'https:',
 				hostname: 'api.twilio.com',
 				method: 'POST',
-				path: 'idontknowit',
+				path: `https://api.twilio.com/2010-04-01/Accounts/${config.twilio.accountSid}/Messages.json`,
 				auth: `${config.twilio.accountSid}:${config.twilio.authToken}`,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
