@@ -1,3 +1,5 @@
+import https from 'https';
+import querystring from 'querystring';
 import crypto from 'crypto';
 import config from './config';
 
@@ -32,6 +34,62 @@ const helpers = {
 			return randomString;
 		}
 		return false;
+	},
+
+	// Send an SMS message via Twilio
+	sendTwilioSms: (phone, message, callback) => {
+		// Validate parametres
+		phone = typeof phone === 'string' && phone.trim().length === 10 ? phone.trim() : false;
+		message =
+			typeof msg === 'string' && phone.trim().length > 0 && phone.trim().length <= 1600 ? phone.trim() : false;
+		if (phone && message) {
+			// Configure the request payload
+			const payload = {
+				From: config.twilio.fromPhone,
+				To: `+1 ${config.twilio.toPhone}`,
+				Body: message,
+			};
+
+			// Stringify the payload
+			const stringPayload = querystring.stringify(payload);
+
+			// Configure the request details
+			const requestDetails = {
+				protocol: 'https',
+				hostname: 'api.twilio.com',
+				method: 'POST',
+				path: 'idontknowit',
+				auth: `${config.twilio.accountSid}:${config.twilio.authToken}`,
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Length': Buffer.byteLength(stringPayload),
+				},
+			};
+
+			// Instantiate the request object
+			const curRequest = https.request(requestDetails, res => {
+				// Grab the status of the sent request
+				const curStatusCode = res.statusCode;
+
+				// Callback successfully if the request went through
+				if (curStatusCode === 200 || curStatusCode === 201) {
+					callback(false);
+				} else {
+					callback(`Status code returned was ${curStatusCode}`);
+				}
+			});
+
+			// Bing to the error event so it doesn't get thrown
+			curRequest.on('error', error => callback(error));
+
+			// Add the payload
+			curRequest.write(stringPayload);
+
+			// End the request
+			curRequest.end();
+		} else {
+			callback('Given parameters were missing or invalid');
+		}
 	},
 };
 
