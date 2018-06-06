@@ -35,6 +35,7 @@ const helpers = {
 		}
 		return false;
 	},
+
 	// Send an SMS message via Twilio
 	sendTwilioSms: (phone, message, callback) => {
 		// Validate parametres
@@ -48,8 +49,10 @@ const helpers = {
 				To: `+1 ${config.twilio.toPhone}`,
 				Body: message,
 			};
+
 			// Stringify the payload
 			const stringPayload = querystring.stringify(payload);
+
 			// Configure the request details
 			const requestDetails = {
 				protocol: 'https',
@@ -62,10 +65,12 @@ const helpers = {
 					'Content-Length': Buffer.byteLength(stringPayload),
 				},
 			};
+
 			// Instantiate the request object
 			const curRequest = https.request(requestDetails, res => {
 				// Grab the status of the sent request
 				const curStatusCode = res.statusCode;
+
 				// Callback successfully if the request went through
 				if (curStatusCode === 200 || curStatusCode === 201) {
 					callback(false);
@@ -73,6 +78,15 @@ const helpers = {
 					callback(`Status code returned was ${curStatusCode}`);
 				}
 			});
+
+			// Bing to the error event so it doesn't get thrown
+			curRequest.on('error', error => callback(error));
+
+			// Add the payload
+			curRequest.write(stringPayload);
+
+			// End the request
+			curRequest.end();
 		} else {
 			callback('Given parameters were missing or invalid');
 		}
