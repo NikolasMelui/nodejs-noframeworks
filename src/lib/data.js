@@ -77,9 +77,10 @@ const lib = {
 			}
 		});
 	},
-	// list: (dir, callback) => {
-	// 	fs;
-	// },
+	list: (dir, callback) => {
+		fs.readdir();
+		callback();
+	},
 };
 
 export default lib;
