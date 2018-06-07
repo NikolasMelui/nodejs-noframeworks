@@ -64,6 +64,7 @@ const handlers = {
 				typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true
 					? data.payload.tosAgreement
 					: false;
+			global.console.log(curFirstName, curLastName, curPhone, curPassword, curTosAgreement);
 			if (curFirstName && curLastName && curPhone && curPassword && curTosAgreement) {
 				_data.read('users', curPhone, err => {
 					if (err) {
@@ -82,11 +83,13 @@ const handlers = {
 									callback(200);
 								} else {
 									global.console.log(_err);
-									callback(500, { Error: 'Could not create the new user' });
+									callback(500, {
+										Error: 'Could not create the new user. Datasystem error.',
+									});
 								}
 							});
 						} else {
-							callback(400, { Error: "Could not hash the user's password" });
+							callback(400, { Error: `Could not hash the user's password` });
 						}
 					} else {
 						callback(500, { Error: 'The user with that phone number is already exist' });
@@ -211,8 +214,7 @@ const handlers = {
 															callback(200);
 														} else {
 															callback(500, {
-																Error:
-																	"Error's encountered while attempting to delete all of the user's checks. All checks may not have been deleted from the system successfylly.",
+																Error: `Error's encountered while attempting to delete all of the user's checks. All checks may not have been deleted from the system successfylly.`,
 															});
 														}
 													}
