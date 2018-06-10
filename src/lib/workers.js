@@ -15,7 +15,22 @@ import _data from './data';
 // Init the workers
 const workers = {
 	// Lookup all checks, get their data, send to a validator
-	gatherAllChecks: () => {},
+	gatherAllChecks: () => {
+		// Get all the checks
+		_data.list('checks', (err, checks) => {
+			if (!err && checks && checks.length > 0) {
+				checks.forEach(curCheck => {
+					_data.read('checks', curCheck, (_err, originalCheckData) => {
+						if (!_err && originalCheckData) {
+							workers.validateCheckData(originalCheckData);
+						} else {
+							global.console.log(`Error reading one of the check's data`);
+						}
+					});
+				});
+			}
+		});
+	},
 
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
