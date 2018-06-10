@@ -1,15 +1,7 @@
 module.exports = {
+	root: true,
 	env: {
-		es6: true,
-		node: true,
+		browser: true,
 	},
-	extends: ['eslint:recommended', 'prettier'],
-	parserOptions: {
-		sourceType: 'module',
-	},
-	rules: {
-		'linebreak-style': ['error', 'unix'],
-		quotes: ['error', 'single', { allowTemplateLiterals: true }],
-		semi: ['error', 'always'],
-	},
+	extends: ['airbnb-base', 'prettier'],
 };
