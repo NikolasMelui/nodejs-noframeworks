@@ -75,6 +75,32 @@ const workers = {
 			originalCheckData.timeoutSeconds.length > 0
 				? originalCheckData.timeoutSeconds
 				: false;
+
+		// Set the keys that may not be set (if the workers have never seen this check before)
+		curOriginalCheckData.state =
+			typeof originalCheckData.state === 'string' && ['up', 'down'].indexOf(originalCheckData.state) > -1
+				? originalCheckData.state
+				: 'down';
+		curOriginalCheckData.lastChecked =
+			typeof originalCheckData.lastChecked === 'number' &&
+			originalCheckData.lastChecked > 0 &&
+			originalCheckData.lastChecked.length > 0
+				? originalCheckData.lastChecked
+				: false;
+		// If all the checks pass, pass the data along to the next step in the process
+		if (
+			curOriginalCheckData.id &&
+			curOriginalCheckData.userPhone &&
+			curOriginalCheckData.protocol &&
+			curOriginalCheckData.url &&
+			curOriginalCheckData.nethod &&
+			curOriginalCheckData.successCodes &&
+			curOriginalCheckData.timeoutSeconds
+		) {
+			workers.preformCheck(curOriginalCheckData);
+		} else {
+			global.console.log('Error: One of the checks is not properly formatted. Scipping it');
+		}
 	},
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
