@@ -3,7 +3,7 @@
  *
  */
 import server from './lib/server';
-// import workers from './lib/workers';
+import workers from './lib/workers';
 
 // Declare the app and init function
 const app = {
@@ -11,7 +11,7 @@ const app = {
 		// Start the server
 		server.initServer();
 		// Start the workers
-		// workers.init();
+		workers.init();
 	},
 };
 
