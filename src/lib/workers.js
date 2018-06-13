@@ -4,9 +4,9 @@
  */
 
 // Deps
-import fs from 'fs';
+// import fs from 'fs';
 import url from 'url';
-import path from 'path';
+// import path from 'path';
 import http from 'http';
 import https from 'https';
 import helpers from './helpers';
@@ -71,8 +71,7 @@ const workers = {
 			typeof originalCheckData.timeoutSeconds === 'number' &&
 			originalCheckData.timeoutSeconds % 1 === 0 &&
 			originalCheckData.timeoutSeconds >= 1 &&
-			originalCheckData.timeoutSeconds <= 5 &&
-			originalCheckData.timeoutSeconds.length > 0
+			originalCheckData.timeoutSeconds <= 5
 				? originalCheckData.timeoutSeconds
 				: false;
 
@@ -93,13 +92,13 @@ const workers = {
 			curOriginalCheckData.userPhone &&
 			curOriginalCheckData.protocol &&
 			curOriginalCheckData.url &&
-			curOriginalCheckData.nethod &&
+			curOriginalCheckData.method &&
 			curOriginalCheckData.successCodes &&
 			curOriginalCheckData.timeoutSeconds
 		) {
 			workers.performcheck(curOriginalCheckData);
 		} else {
-			global.console.log('Error: One of the checks is not properly formatted. Scipping it');
+			global.console.log('Error: One of the checks is not properly formatted. Skipping it');
 		}
 	},
 	// Preform the check, set the originalCheckData and the outcome of the check process, to the next step in the process
@@ -124,10 +123,16 @@ const workers = {
 			path: curPath,
 			timeout: originalCheckData.timeoutSeconds * 1000,
 		};
+		console.log(curRequestDetails.protocol);
 		// Instanciate the request object (using either the http or https module)
-		const curModuleToUse = originalCheckData.protocol === 'http' ? 'http' : 'https';
+		const curModuleToUse = originalCheckData.protocol === 'http' ? http : https;
 		const curRequest = curModuleToUse.request(curRequestDetails, res => {
 			// Grab the status of the sent request
+
+			// if (curModuleToUse.protocol === 'https') {
+			// 	curModuleToUse.protocol = 'https:';
+			// }
+
 			const curStatus = res.statusCode;
 			curCheckOutcome.responseCode = curStatus;
 			if (!curOutcomeSent) {
@@ -193,9 +198,25 @@ const workers = {
 		});
 	},
 
+	// Alert the user as to a change in there check status
+	alertUserToStatusChanged: newCheckData => {
+		const curMessage = `Alert: Your check for${newCheckData.method.toUpperCase()} ${newCheckData.protocol}://${
+			newCheckData.url
+		} is currently ${newCheckData.state}`;
+		helpers.sendTwilioSms(newCheckData.userPhone, curMessage, err => {
+			if (!err) {
+				global.console.log(
+					`Success: User was alerted to a status change in there check, via sms : ${curMessage}`
+				);
+			} else {
+				global.console.log('Error: Could not send sms alert to user who had a state change in there check');
+			}
+		});
+	},
+
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
-		setInterval(workers.gatherAllChecks(), 1000 * 60);
+		setInterval(workers.gatherAllChecks, 1000 * 60);
 	},
 
 	// Init script
