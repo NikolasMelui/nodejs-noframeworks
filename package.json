@@ -8,7 +8,7 @@
 	"private": true,
 	"scripts": {
 		"start": "nodemon src/index.js --exec babel-node",
-		"debug": "nodemon --inspect=12345 src/index.js --exec babel-node",
+		"debug": "nodemon --inspect src/index.js --exec babel-node",
 		"build": "babel src -d build",
 		"serve": "node build/index.js"
 	},
