@@ -166,7 +166,32 @@ const workers = {
 
 	// Process the check outcome, update the check data as needed, trigger an alert if needed
 	// Special logic for accommodating a check that has never been tested before (don't alert on that one)
-	processCheckOutcome: (originalCheckData, checkOutcome) => {},
+	processCheckOutcome: (originalCheckData, checkOutcome) => {
+		// Decide if the check is considered up or down
+		const curState =
+			!checkOutcome.error &&
+			checkOutcome.responseCode &&
+			originalCheckData.successCodes.indexOf(checkOutcome.responseCode) > -1
+				? 'up'
+				: 'down';
+		// Decide if an allert is warranted
+		const curAlertWarranted = originalCheckData.lastChecked && originalCheckData.state !== curState;
+		// Update the check data
+		const newCheckData = originalCheckData;
+		newCheckData.state = curState;
+		newCheckData.lastChecked = Date.now();
+		// Save the updates
+		_data.update('checks', newCheckData.id, newCheckData, err => {
+			if (!err) {
+				// Send the new check data to the next phase in the process if needed
+				if (curAlertWarranted) {
+					workers.alertUserToStatusChanged(newCheckData);
+				}
+			} else {
+				global.console.log('Error trying to save updates to one of the checks');
+			}
+		});
+	},
 
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
