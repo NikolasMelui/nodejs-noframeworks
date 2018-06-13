@@ -11,7 +11,6 @@ import http from 'http';
 import https from 'https';
 import helpers from './helpers';
 import _data from './data';
-import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 // Init the workers
 const workers = {
@@ -111,7 +110,7 @@ const workers = {
 			responseCode: false,
 		};
 		// Mark that the outcome has not been sent yet
-		const curOutcomeSent = false;
+		let curOutcomeSent = false;
 
 		// Parse the hostname and the path out of the original check data
 		const curParsedUrl = url.parse(`${originalCheckData.protocol}://$${originalCheckData.url}`, true);
@@ -126,11 +125,43 @@ const workers = {
 			timeout: originalCheckData.timeoutSeconds * 1000,
 		};
 		// Instanciate the request object (using either the http or https module)
-		const moduleToUse = originalCheckData.protocol === 'http' ? http : https;
-		const req = moduleToUse.request(curRequestDetails, res => {
+		const curModuleToUse = originalCheckData.protocol === 'http' ? 'http' : 'https';
+		const curRequest = curModuleToUse.request(curRequestDetails, res => {
 			// Grab the status of the sent request
-			const status = res.statusCode;
+			const curStatus = res.statusCode;
+			curCheckOutcome.responseCode = curStatus;
+			if (!curOutcomeSent) {
+				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
+				curOutcomeSent = true;
+			}
 		});
+		// Bind to the error event so it doesnt's get thrown
+		curRequest.on('error', err => {
+			// Update the check outcome and pass the data along
+			curCheckOutcome.error = {
+				error: true,
+				value: err,
+			};
+			if (!curOutcomeSent) {
+				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
+				curOutcomeSent = true;
+			}
+		});
+
+		// Bind to the timeout event
+		curRequest.on('timeout', () => {
+			// Update the check outcome and pass the data along
+			curCheckOutcome.error = {
+				error: true,
+				value: 'timeout',
+			};
+			if (!curOutcomeSent) {
+				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
+				curOutcomeSent = true;
+			}
+		});
+		// End the request
+		curRequest.end();
 	},
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
