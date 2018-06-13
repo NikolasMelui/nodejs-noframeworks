@@ -163,6 +163,11 @@ const workers = {
 		// End the request
 		curRequest.end();
 	},
+
+	// Process the check outcome, update the check data as needed, trigger an alert if needed
+	// Special logic for accommodating a check that has never been tested before (don't alert on that one)
+	processCheckOutcome: (originalCheckData, checkOutcome) => {},
+
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
 		setInterval(workers.gatherAllChecks(), 1000 * 60);
