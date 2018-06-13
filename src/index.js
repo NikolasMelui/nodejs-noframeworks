@@ -11,7 +11,7 @@ const app = {
 		// Start the server
 		server.initServer();
 		// Start the workers
-		workers.init();
+		workers.initWorkers();
 	},
 };
 

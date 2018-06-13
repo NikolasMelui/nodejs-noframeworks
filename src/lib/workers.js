@@ -81,9 +81,7 @@ const workers = {
 				? originalCheckData.state
 				: 'down';
 		curOriginalCheckData.lastChecked =
-			typeof originalCheckData.lastChecked === 'number' &&
-			originalCheckData.lastChecked > 0 &&
-			originalCheckData.lastChecked.length > 0
+			typeof originalCheckData.lastChecked === 'number' && originalCheckData.lastChecked > 0
 				? originalCheckData.lastChecked
 				: false;
 		// If all the checks pass, pass the data along to the next step in the process
@@ -96,50 +94,53 @@ const workers = {
 			curOriginalCheckData.successCodes &&
 			curOriginalCheckData.timeoutSeconds
 		) {
-			workers.performcheck(curOriginalCheckData);
+			workers.performCheck(curOriginalCheckData);
 		} else {
 			global.console.log('Error: One of the checks is not properly formatted. Skipping it');
 		}
 	},
 	// Preform the check, set the originalCheckData and the outcome of the check process, to the next step in the process
-	performcheck: originalCheckData => {
+	performCheck: originalCheckData => {
 		// Prepear the initial check outcome
 		const curCheckOutcome = {
 			error: false,
 			responseCode: false,
 		};
+
 		// Mark that the outcome has not been sent yet
 		let curOutcomeSent = false;
 
 		// Parse the hostname and the path out of the original check data
-		const curParsedUrl = url.parse(`${originalCheckData.protocol}://$${originalCheckData.url}`, true);
+		const curParsedUrl = url.parse(`${originalCheckData.protocol}://${originalCheckData.url}`, true);
+
 		const curHostName = curParsedUrl.hostname;
+
 		const curPath = curParsedUrl.path;
 
 		const curRequestDetails = {
-			protocol: originalCheckData.protocol,
+			protocol: `${originalCheckData.protocol}:`,
 			hostname: curHostName,
 			method: originalCheckData.method.toUpperCase(),
 			path: curPath,
 			timeout: originalCheckData.timeoutSeconds * 1000,
 		};
-		console.log(curRequestDetails.protocol);
+
 		// Instanciate the request object (using either the http or https module)
+
 		const curModuleToUse = originalCheckData.protocol === 'http' ? http : https;
+
 		const curRequest = curModuleToUse.request(curRequestDetails, res => {
 			// Grab the status of the sent request
 
-			// if (curModuleToUse.protocol === 'https') {
-			// 	curModuleToUse.protocol = 'https:';
-			// }
-
 			const curStatus = res.statusCode;
+
 			curCheckOutcome.responseCode = curStatus;
 			if (!curOutcomeSent) {
 				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
 				curOutcomeSent = true;
 			}
 		});
+
 		// Bind to the error event so it doesnt's get thrown
 		curRequest.on('error', err => {
 			// Update the check outcome and pass the data along
@@ -165,6 +166,7 @@ const workers = {
 				curOutcomeSent = true;
 			}
 		});
+
 		// End the request
 		curRequest.end();
 	},
@@ -179,6 +181,7 @@ const workers = {
 			originalCheckData.successCodes.indexOf(checkOutcome.responseCode) > -1
 				? 'up'
 				: 'down';
+
 		// Decide if an allert is warranted
 		const curAlertWarranted = originalCheckData.lastChecked && originalCheckData.state !== curState;
 		// Update the check data
@@ -191,6 +194,8 @@ const workers = {
 				// Send the new check data to the next phase in the process if needed
 				if (curAlertWarranted) {
 					workers.alertUserToStatusChanged(newCheckData);
+				} else {
+					global.console.log('Check outcome has not changed, no alert needed');
 				}
 			} else {
 				global.console.log('Error trying to save updates to one of the checks');
@@ -200,7 +205,7 @@ const workers = {
 
 	// Alert the user as to a change in there check status
 	alertUserToStatusChanged: newCheckData => {
-		const curMessage = `Alert: Your check for${newCheckData.method.toUpperCase()} ${newCheckData.protocol}://${
+		const curMessage = `Alert: Your check for ${newCheckData.method.toUpperCase()} ${newCheckData.protocol}://${
 			newCheckData.url
 		} is currently ${newCheckData.state}`;
 		helpers.sendTwilioSms(newCheckData.userPhone, curMessage, err => {
@@ -216,11 +221,13 @@ const workers = {
 
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
-		setInterval(workers.gatherAllChecks, 1000 * 60);
+		setInterval(() => {
+			workers.gatherAllChecks();
+		}, 1000 * 60);
 	},
 
 	// Init script
-	init: () => {
+	initWorkers: () => {
 		// Execute all the checks immediately
 		workers.gatherAllChecks();
 
