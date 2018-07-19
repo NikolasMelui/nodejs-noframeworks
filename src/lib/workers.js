@@ -3,7 +3,6 @@
  *
  */
 
-// Deps
 // import fs from 'fs';
 import url from 'url';
 // import path from 'path';
@@ -11,6 +10,7 @@ import http from 'http';
 import https from 'https';
 import helpers from './helpers';
 import _data from './data';
+import _logs from './logs';
 
 // Init the workers
 const workers = {
@@ -184,10 +184,16 @@ const workers = {
 
 		// Decide if an allert is warranted
 		const curAlertWarranted = originalCheckData.lastChecked && originalCheckData.state !== curState;
+
+		// Log the outcome
+		const curTimeOfCheck = Date.now();
+		workers.log(originalCheckData, checkOutcome, curState, curAlertWarranted, curTimeOfCheck);
+
 		// Update the check data
 		const newCheckData = originalCheckData;
 		newCheckData.state = curState;
 		newCheckData.lastChecked = Date.now();
+
 		// Save the updates
 		_data.update('checks', newCheckData.id, newCheckData, err => {
 			if (!err) {
@@ -215,6 +221,30 @@ const workers = {
 				);
 			} else {
 				global.console.log('Error: Could not send sms alert to user who had a state change in there check');
+			}
+		});
+	},
+
+	log: (originalCheckData, checkOutcome, curState, curAlertWarranted, curTimeOfCheck) => {
+		// Form the log data
+		const logData = {
+			check: originalCheckData,
+			outcome: checkOutcome,
+			state: curState,
+			alert: curAlertWarranted,
+			time: curTimeOfCheck,
+		};
+		const logString = JSON.stringify(logData);
+
+		// Determine the name of the log file
+		const logFileName = originalCheckData.id;
+
+		// Append the log file string to the file
+		_logs.append(logFileName, logString, err => {
+			if (!err) {
+				global.console.log('Logging to file secceeded');
+			} else {
+				global.console.log(`Logging to file failed with the error:\n${err}`);
 			}
 		});
 	},
