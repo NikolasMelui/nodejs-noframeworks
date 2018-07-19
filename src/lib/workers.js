@@ -184,10 +184,16 @@ const workers = {
 
 		// Decide if an allert is warranted
 		const curAlertWarranted = originalCheckData.lastChecked && originalCheckData.state !== curState;
+
+		// Log the outcome
+		const curTimeOfCheck = Date.now();
+		global.console.log(originalCheckData, checkOutcome, curState, curAlertWarranted, curTimeOfCheck);
+
 		// Update the check data
 		const newCheckData = originalCheckData;
 		newCheckData.state = curState;
 		newCheckData.lastChecked = Date.now();
+
 		// Save the updates
 		_data.update('checks', newCheckData.id, newCheckData, err => {
 			if (!err) {
