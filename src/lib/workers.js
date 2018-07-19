@@ -244,7 +244,7 @@ const workers = {
 			if (!err) {
 				global.console.log('Logging to file secceeded');
 			} else {
-				global.console.log('Logging to file failed');
+				global.console.log(`Logging to file failed with the error:\n${err}`);
 			}
 		});
 	},
