@@ -168,7 +168,9 @@ const workers = {
 		});
 
 		// End the request
-		curRequest.end();
+		curRequest.end(() => {
+			global.console.log('Request is finished');
+		});
 	},
 
 	// Process the check outcome, update the check data as needed, trigger an alert if needed
