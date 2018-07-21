@@ -67,7 +67,7 @@ const logs = {
 				zlib.gzip(inputString, (_err, buffer) => {
 					if (!_err && buffer) {
 						// Send the data to the destination file
-						fs.open(`${logs.baseDir}${destFile}wx`, (__err, fileDesctiptor) => {
+						fs.open(`${logs.baseDir}${destFile}`, 'wx', (__err, fileDesctiptor) => {
 							if (!__err && fileDesctiptor) {
 								// Write to the destination file
 								fs.writeFile(fileDesctiptor, buffer.toString('base64'), ___err => {
