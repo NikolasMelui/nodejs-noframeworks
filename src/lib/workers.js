@@ -270,9 +270,9 @@ const workers = {
 							// Truncate the log
 							_logs.truncate(logId, __err => {
 								if (!__err) {
-									global.console.log('Error truncating logFile');
+									global.console.log('Logging to the file succeeded');
 								} else {
-									global.console.log('Error truncating logFile');
+									global.console.log('Error truncating logFile', __err);
 								}
 							});
 						} else {
@@ -281,7 +281,7 @@ const workers = {
 					});
 				});
 			} else {
-				global.console.log('Error: could not find any logs to rotate');
+				global.console.log('Error: could not find any logs to rotate', err);
 			}
 		});
 	},
