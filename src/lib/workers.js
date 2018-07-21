@@ -168,7 +168,9 @@ const workers = {
 		});
 
 		// End the request
-		curRequest.end();
+		curRequest.end(() => {
+			global.console.log('Request is finished');
+		});
 	},
 
 	// Process the check outcome, update the check data as needed, trigger an alert if needed
@@ -251,11 +253,45 @@ const workers = {
 
 	// Timer to execute the the worker-process once per minute
 	loop: () => {
-		setInterval(() => {
-			workers.gatherAllChecks();
-		}, 1000 * 60);
+		setInterval(() => workers.gatherAllChecks(), 1000 * 60);
 	},
 
+	// Rotate (compress) the log files
+	rotateLogs: () => {
+		// List all the (non compressed) log files
+		_logs.list(false, (err, logs) => {
+			if (!err && logs && logs.length > 0) {
+				logs.forEach(logName => {
+					// Compress the data to a different file
+					const logId = logName.replace('.log', '');
+					const newFileId = `${logId}-${Date.now()}`;
+					_logs.compress(logId, newFileId, _err => {
+						if (!err) {
+							// Truncate the log
+							_logs.truncate(logId, __err => {
+								if (!__err) {
+									global.console.log('Logging to the file succeeded');
+								} else {
+									global.console.log('Error truncating logFile', __err);
+								}
+							});
+						} else {
+							global.console.log('Error compressing one of the log files', _err);
+						}
+					});
+				});
+			} else {
+				global.console.log('Error: could not find any logs to rotate', err);
+			}
+		});
+	},
+
+	// Timer to execute the log-rotation process once per day
+	logRotationLoop: () => {
+		setInterval(() => workers.rotateLogs(), 1000 * 60 * 60 * 24);
+	},
+
+	// Timer to
 	// Init script
 	initWorkers: () => {
 		// Execute all the checks immediately
@@ -263,6 +299,12 @@ const workers = {
 
 		// Call the loop so the checks will execute later on
 		workers.loop();
+
+		// Compress the logs immediatly
+		workers.rotateLogs();
+
+		// Call the compression loop so logs will be compressed later on
+		workers.logRotationLoop();
 	},
 };
 
