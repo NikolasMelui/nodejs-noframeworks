@@ -61,13 +61,13 @@ const logs = {
 		const destFile = `${newFileId}.gz.b64`;
 
 		// Read the source file
-		fs.readFile(`${logs.baseDir}${sourceFile}`, 'utf8', (err, inputString) => {
+		fs.readFile(`${logs.baseDir}/${sourceFile}`, 'utf8', (err, inputString) => {
 			if (!err && inputString) {
 				// Compress the data using gzip
 				zlib.gzip(inputString, (_err, buffer) => {
 					if (!_err && buffer) {
 						// Send the data to the destination file
-						fs.open(`${logs.baseDir}${destFile}`, 'wx', (__err, fileDesctiptor) => {
+						fs.open(`${logs.baseDir}/${destFile}`, 'wx', (__err, fileDesctiptor) => {
 							if (!__err && fileDesctiptor) {
 								// Write to the destination file
 								fs.writeFile(fileDesctiptor, buffer.toString('base64'), ___err => {
@@ -101,7 +101,7 @@ const logs = {
 	// Decompress the contents of the a .gz.b64 file into a string variable
 	decompress: (fileId, callback) => {
 		const fileName = `${fileId}.gz.b64`;
-		fs.readFile(`${logs.baseDir}${fileName}`, 'utf8', (err, string) => {
+		fs.readFile(`${logs.baseDir}/${fileName}`, 'utf8', (err, string) => {
 			if (!err && string) {
 				// Decompress the data
 				const inputBuffer = Buffer.from(string, 'base64');
@@ -122,7 +122,7 @@ const logs = {
 
 	// Trancate a log file
 	truncate: (logId, callback) => {
-		fs.truncate(`${logs.baseDir}${logId}.log`, 0, err => {
+		fs.truncate(`${logs.baseDir}/${logId}.log`, 0, err => {
 			if (!err) {
 				callback(false);
 			} else {
