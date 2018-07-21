@@ -64,32 +64,54 @@ const logs = {
 		fs.readFile(`${logs.baseDir}${sourceFile}`, 'utf8', (err, inputString) => {
 			if (!err && inputString) {
 				// Compress the data using gzip
-				zlib.gzip(inputString, (__err, buffer) => {
-					if (!__err && buffer) {
+				zlib.gzip(inputString, (_err, buffer) => {
+					if (!_err && buffer) {
 						// Send the data to the destination file
-						fs.open(`${logs.baseDir}${destFile}wx`, (___err, fileDesctiptor) => {
-							if (!___err && fileDesctiptor) {
+						fs.open(`${logs.baseDir}${destFile}wx`, (__err, fileDesctiptor) => {
+							if (!__err && fileDesctiptor) {
 								// Write to the destination file
-								fs.writeFile(fileDesctiptor, buffer.toString('base64'), ____err => {
-									if (!____err) {
+								fs.writeFile(fileDesctiptor, buffer.toString('base64'), ___err => {
+									if (!___err) {
 										// Close the destination file
-										fs.close(fileDesctiptor, _____err => {
-											if (!_____err) {
+										fs.close(fileDesctiptor, ____err => {
+											if (!____err) {
 												callback(false);
 											} else {
-												callback(_____err);
+												callback(____err);
 											}
 										});
 									} else {
-										callback(____err);
+										callback(___err);
 									}
 								});
 							} else {
-								callback(___err);
+								callback(__err);
 							}
 						});
 					} else {
-						callback(__err);
+						callback(_err);
+					}
+				});
+			} else {
+				callback(err);
+			}
+		});
+	},
+
+	// Decompress the contents of the a .gz.b64 file into a string variable
+	decompress: (fileId, callback) => {
+		const fileName = `${fileId}.gz.b64`;
+		fs.readFile(`${logs.baseDir}${fileName}`, 'utf8', (err, string) => {
+			if (!err && string) {
+				// Decompress the data
+				const inputBuffer = Buffer.from(string, 'base64');
+				zlib.unzip(inputBuffer, (_err, outputBuffer) => {
+					if (!_err && outputBuffer) {
+						// Callback
+						const callbackString = outputBuffer.toString();
+						callback(false, callbackString);
+					} else {
+						callback(_err);
 					}
 				});
 			} else {
