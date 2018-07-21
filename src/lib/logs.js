@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 // import zlib from 'zlib';
 
-const lib = {
+const logs = {
 	baseDir: path.join(__dirname, '../data/logs'),
 
 	// Append a string to the file. Create the file if it does not exist.
@@ -34,4 +34,4 @@ const lib = {
 	},
 };
 
-export default lib;
+export default logs;
