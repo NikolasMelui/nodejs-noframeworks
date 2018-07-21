@@ -119,6 +119,17 @@ const logs = {
 			}
 		});
 	},
+
+	// Trancate a log file
+	truncate: (logId, callback) => {
+		fs.truncate(`${logs.baseDir}${logId}.log`, 0, err => {
+			if (!err) {
+				callback(false);
+			} else {
+				callback(err);
+			}
+		});
+	},
 };
 
 export default logs;
