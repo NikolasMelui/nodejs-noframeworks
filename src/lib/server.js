@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+// import fs from 'fs';
+// import path from 'path';
 import http from 'http';
-import https from 'https';
+// import https from 'https';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
 // import _data from './data';
@@ -84,25 +84,25 @@ const server = {
 		});
 	},
 
-	httpsServerOptions: {
-		key: () => {
-			fs.readFileSync(path.join(__dirname, '/../ssl/key.pem'));
-		},
-		cert: () => {
-			fs.readFileSync(path.join(__dirname, '/../ssl/cert.pem'));
-		},
-	},
+	// httpsServerOptions: {
+	// 	key: () => {
+	// 		fs.readFileSync(path.join(__dirname, '/../ssl/key.pem'));
+	// 	},
+	// 	cert: () => {
+	// 		fs.readFileSync(path.join(__dirname, '/../ssl/cert.pem'));
+	// 	},
+	// },
 
 	// Initial servers script
 	initServer: () => {
 		http.createServer((req, res) => {
 			server.unifiedServer(req, res);
 		}).listen(config.httpPort, () => global.console.log(`Server is listening on port: ${config.httpPort}.`));
-		https
-			.createServer((req, res) => {
-				server.unifiedServer(req, res);
-			})
-			.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
+		// https
+		// 	.createServer((req, res) => {
+		// 		server.unifiedServer(req, res);
+		// 	})
+		// 	.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
 	},
 };
 
