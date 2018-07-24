@@ -8,9 +8,12 @@ import url from 'url';
 // import path from 'path';
 import http from 'http';
 import https from 'https';
+import util from 'util';
 import helpers from './helpers';
 import _data from './data';
 import _logs from './logs';
+
+const debug = util.debuglog('workers');
 
 // Init the workers
 const workers = {
