@@ -130,14 +130,17 @@ const workers = {
 		const curModuleToUse = originalCheckData.protocol === 'http' ? http : https;
 
 		const curRequest = curModuleToUse.request(curRequestDetails, res => {
-			// Grab the status of the sent request
+			try {
+				// Grab the status of the sent request
+				const curStatus = res.statusCode;
 
-			const curStatus = res.statusCode;
-
-			curCheckOutcome.responseCode = curStatus;
-			if (!curOutcomeSent) {
-				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
-				curOutcomeSent = true;
+				curCheckOutcome.responseCode = curStatus;
+				if (!curOutcomeSent) {
+					workers.processCheckOutcome(originalCheckData, curCheckOutcome);
+					curOutcomeSent = true;
+				}
+			} catch (err) {
+				global.console.log(err);
 			}
 		});
 
@@ -169,7 +172,7 @@ const workers = {
 
 		// End the request
 		curRequest.end(() => {
-			global.console.log('Request is finished');
+			global.console.error('\x1b[32m%s\x1b[0m', 'Request is finished');
 		});
 	},
 
@@ -244,7 +247,7 @@ const workers = {
 		// Append the log file string to the file
 		_logs.append(logFileName, logString, err => {
 			if (!err) {
-				global.console.log('Logging to file secceeded');
+				global.console.log('Logging to the file secceeded');
 			} else {
 				global.console.log(`Logging to file failed with the error:\n${err}`);
 			}
@@ -270,7 +273,7 @@ const workers = {
 							// Truncate the log
 							_logs.truncate(logId, __err => {
 								if (!__err) {
-									global.console.log('Logging to the file succeeded');
+									global.console.log('Compressing the log files succeeded');
 								} else {
 									global.console.log('Error truncating logFile', __err);
 								}
