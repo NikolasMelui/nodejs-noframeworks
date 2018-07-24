@@ -8,11 +8,9 @@
 	"private": true,
 	"scripts": {
 		"start": "nodemon src/index.js --exec babel-node",
-		"start:build": "node build/index.js",
-		"start:node": "node src/index.js --exec babel-node",
-		"debug": "nodemon --inspect src/index.js --exec babel-node",
 		"build": "babel src -d build",
-		"serve": "node build/index.js"
+		"start:build": "node build/index.js",
+		"debug": "nodemon --inspect src/index.js --exec babel-node"
 	},
 	"devDependencies": {
 		"babel-cli": "^6.26.0",
