@@ -97,7 +97,9 @@ const server = {
 	initServer: () => {
 		http.createServer((req, res) => {
 			server.unifiedServer(req, res);
-		}).listen(config.httpPort, () => global.console.log(`Server is listening on port: ${config.httpPort}.`));
+		}).listen(config.httpPort, () =>
+			global.console.log('\x1b[35m%s\x1b[0m', `Server is listening on port: ${config.httpPort}.`)
+		);
 		// https
 		// 	.createServer((req, res) => {
 		// 		server.unifiedServer(req, res);
