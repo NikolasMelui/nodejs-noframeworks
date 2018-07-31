@@ -4,16 +4,19 @@ import http from 'http';
 // import https from 'https';
 import url from 'url';
 import { StringDecoder } from 'string_decoder';
+import util from 'util';
 // import _data from './data';
 import handlers from './handlers';
 import helpers from './helpers';
 import config from './config';
 
+const debug = util.debuglog('server');
+
 /**
  * @TEST: test call of the sendTwilioSms function
  *
  */
-// helpers.sendTwilioSms('9093442211', 'Hello, Nick!', error => global.console.log(`This was the error: ${error}`));
+// helpers.sendTwilioSms('9093442211', 'Hello, Nick!', error => debug(`This was the error: ${error}`));
 
 const server = {
 	// Define the request routers
@@ -55,7 +58,7 @@ const server = {
 				payload: helpers.parseJsonToObject(reqPayload),
 			};
 
-			global.console.log(data);
+			debug(data);
 
 			chosenHandler(data, (_statusCode, _payload) => {
 				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
@@ -64,22 +67,28 @@ const server = {
 				res.setHeader('Content-Type', 'application/json');
 				res.writeHead(statusCode);
 				res.end(payloadString);
-				global.console.log('Returning the response: ', statusCode, payloadString);
+
+				// If the response is 200 - print green, otherwise - print red
+				if (statusCode === 200) {
+					debug('\x1b[32m%s\x1b[0m', `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`);
+				} else {
+					debug('\x1b[31m%s\x1b[0m', `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`);
+				}
 
 				/**
 				 * @TEST: test function for data.json files.
 				 *
 				 */
 
-				// _data.create('test', 'newFile', data.headers, err => global.console.log(`This was the error: ${err}`));
+				// _data.create('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
 
 				// _data.read('test', 'newFile', (err, __data) =>
-				// 	global.console.log(`This was the error: ${err}\n___\nAnd this was the data: ${__data}`)
+				// 	debug(`This was the error: ${err}\n___\nAnd this was the data: ${__data}`)
 				// );
 
-				// _data.update('test', 'newFile', data.headers, err => global.console.log(`This was the error: ${err}`));
+				// _data.update('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
 
-				// _data.delete('test', 'newFile', err => global.console.log(`This was the error: ${err}`));
+				// _data.delete('test', 'newFile', err => debug(`This was the error: ${err}`));
 			});
 		});
 	},
@@ -104,7 +113,7 @@ const server = {
 		// 	.createServer((req, res) => {
 		// 		server.unifiedServer(req, res);
 		// 	})
-		// 	.listen(config.httpsPort, () => global.console.log(`Server is listening on port: ${config.httpsPort}.`));
+		// 	.listen(config.httpsPort, () => debug(`Server is listening on port: ${config.httpsPort}.`));
 	},
 };
 
