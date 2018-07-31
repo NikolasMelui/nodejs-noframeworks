@@ -8,9 +8,12 @@ import url from 'url';
 // import path from 'path';
 import http from 'http';
 import https from 'https';
+import util from 'util';
 import helpers from './helpers';
 import _data from './data';
 import _logs from './logs';
+
+const debug = util.debuglog('workers');
 
 // Init the workers
 const workers = {
@@ -26,12 +29,12 @@ const workers = {
 							// Pass it to the check validator, and let that function continue or
 							workers.validateCheckData(originalCheckData);
 						} else {
-							global.console.log(`Error reading one of the check's data`);
+							debug(`Error reading one of the check's data`);
 						}
 					});
 				});
 			} else {
-				global.console.log('Error: Could not find any checks or processes');
+				debug('Error: Could not find any checks or processes');
 			}
 		});
 	},
@@ -96,7 +99,7 @@ const workers = {
 		) {
 			workers.performCheck(curOriginalCheckData);
 		} else {
-			global.console.log('Error: One of the checks is not properly formatted. Skipping it');
+			debug('Error: One of the checks is not properly formatted. Skipping it');
 		}
 	},
 	// Preform the check, set the originalCheckData and the outcome of the check process, to the next step in the process
@@ -130,14 +133,17 @@ const workers = {
 		const curModuleToUse = originalCheckData.protocol === 'http' ? http : https;
 
 		const curRequest = curModuleToUse.request(curRequestDetails, res => {
-			// Grab the status of the sent request
+			try {
+				// Grab the status of the sent request
+				const curStatus = res.statusCode;
 
-			const curStatus = res.statusCode;
-
-			curCheckOutcome.responseCode = curStatus;
-			if (!curOutcomeSent) {
-				workers.processCheckOutcome(originalCheckData, curCheckOutcome);
-				curOutcomeSent = true;
+				curCheckOutcome.responseCode = curStatus;
+				if (!curOutcomeSent) {
+					workers.processCheckOutcome(originalCheckData, curCheckOutcome);
+					curOutcomeSent = true;
+				}
+			} catch (err) {
+				debug(err);
 			}
 		});
 
@@ -169,7 +175,7 @@ const workers = {
 
 		// End the request
 		curRequest.end(() => {
-			global.console.log('Request is finished');
+			global.console.error('\x1b[32m%s\x1b[0m', 'Request is finished');
 		});
 	},
 
@@ -203,10 +209,10 @@ const workers = {
 				if (curAlertWarranted) {
 					workers.alertUserToStatusChanged(newCheckData);
 				} else {
-					global.console.log('Check outcome has not changed, no alert needed');
+					debug('Check outcome has not changed, no alert needed');
 				}
 			} else {
-				global.console.log('Error trying to save updates to one of the checks');
+				debug('Error trying to save updates to one of the checks');
 			}
 		});
 	},
@@ -218,11 +224,9 @@ const workers = {
 		} is currently ${newCheckData.state}`;
 		helpers.sendTwilioSms(newCheckData.userPhone, curMessage, err => {
 			if (!err) {
-				global.console.log(
-					`Success: User was alerted to a status change in there check, via sms : ${curMessage}`
-				);
+				debug(`Success: User was alerted to a status change in there check, via sms : ${curMessage}`);
 			} else {
-				global.console.log('Error: Could not send sms alert to user who had a state change in there check');
+				debug('Error: Could not send sms alert to user who had a state change in there check');
 			}
 		});
 	},
@@ -244,9 +248,9 @@ const workers = {
 		// Append the log file string to the file
 		_logs.append(logFileName, logString, err => {
 			if (!err) {
-				global.console.log('Logging to file secceeded');
+				debug('Logging to the file secceeded');
 			} else {
-				global.console.log(`Logging to file failed with the error:\n${err}`);
+				debug(`Logging to file failed with the error:\n${err}`);
 			}
 		});
 	},
@@ -270,18 +274,18 @@ const workers = {
 							// Truncate the log
 							_logs.truncate(logId, __err => {
 								if (!__err) {
-									global.console.log('Logging to the file succeeded');
+									debug('Compressing the log files succeeded');
 								} else {
-									global.console.log('Error truncating logFile', __err);
+									debug('Error truncating logFile', __err);
 								}
 							});
 						} else {
-							global.console.log('Error compressing one of the log files', _err);
+							debug('Error compressing one of the log files', _err);
 						}
 					});
 				});
 			} else {
-				global.console.log('Error: could not find any logs to rotate', err);
+				debug('Error: could not find any logs to rotate', err);
 			}
 		});
 	},
@@ -294,6 +298,9 @@ const workers = {
 	// Timer to
 	// Init script
 	initWorkers: () => {
+		// Send to console, in yellow
+		global.console.log('\x1b[33m%s\x1b[0m', 'Background workers are running');
+
 		// Execute all the checks immediately
 		workers.gatherAllChecks();
 
