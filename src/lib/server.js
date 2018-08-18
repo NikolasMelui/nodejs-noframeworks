@@ -76,11 +76,21 @@ const server = {
 					typeof _contentType === 'string' ? _contentType : 'json';
 				// Use the status code called back by the handler, or default to 200
 				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
-				// Use the payload called back by the handler, or default to an empty object
-				const payload = typeof _payload === 'object' ? _payload : {};
-				// Convert the payload to a string
-				const payloadString = JSON.stringify(payload);
-				res.setHeader('Content-Type', 'application/json');
+
+				// Return the response-parts that are content-specific
+				let payloadString = '';
+				if (contentType === 'json') {
+					res.setHeader('Content-Type', 'application/json');
+					const payload = typeof _payload === 'object' ? _payload : {};
+					payloadString = JSON.stringify(payload);
+				}
+
+				if (contentType === 'html') {
+					res.setHeader('Content-Type', 'text/html');
+					payloadString = typeof _payload === 'string' ? _payload : '';
+				}
+
+				// Returning the response-parts that are common to all content-types
 				res.writeHead(statusCode);
 				res.end(payloadString);
 
