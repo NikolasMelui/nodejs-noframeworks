@@ -69,12 +69,16 @@ const server = {
 
 			debug(data);
 
+			// Route the request to the handles specified in the router
 			chosenHandler(data, (_statusCode, _payload, _contentType) => {
 				// Determine the type of the response (fallback to JSON)
 				const contentType =
 					typeof _contentType === 'string' ? _contentType : 'json';
+				// Use the status code called back by the handler, or default to 200
 				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
+				// Use the payload called back by the handler, or default to an empty object
 				const payload = typeof _payload === 'object' ? _payload : {};
+				// Convert the payload to a string
 				const payloadString = JSON.stringify(payload);
 				res.setHeader('Content-Type', 'application/json');
 				res.writeHead(statusCode);
