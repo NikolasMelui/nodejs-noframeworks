@@ -14,9 +14,14 @@ import config from './config';
  * Handlers
  */
 const handlers = {
-	/**
-	 * Handlers
+	/*
+	 * HTML Handlers
 	 *
+	 */
+
+	/*
+	 * JSON API Handlers
+	 * 
 	 */
 	users: (data, callback) => {
 		const acceptableMethods = ['post', 'get', 'put', 'delete'];
@@ -45,27 +50,44 @@ const handlers = {
 	sub_users: {
 		post: (data, callback) => {
 			const curFirstName =
-				typeof data.payload.firstName === 'string' && data.payload.firstName.trim().length > 0
+				typeof data.payload.firstName === 'string' &&
+				data.payload.firstName.trim().length > 0
 					? data.payload.firstName.trim()
 					: false;
 			const curLastName =
-				typeof data.payload.lastName === 'string' && data.payload.lastName.trim().length > 0
+				typeof data.payload.lastName === 'string' &&
+				data.payload.lastName.trim().length > 0
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
+				typeof data.payload.phone === 'string' &&
+				data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
-				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
+				typeof data.payload.password === 'string' &&
+				data.payload.password.trim().length > 0
 					? data.payload.password.trim()
 					: false;
 			const curTosAgreement =
-				typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true
+				typeof data.payload.tosAgreement === 'boolean' &&
+				data.payload.tosAgreement === true
 					? data.payload.tosAgreement
 					: false;
-			global.console.log(curFirstName, curLastName, curPhone, curPassword, curTosAgreement);
-			if (curFirstName && curLastName && curPhone && curPassword && curTosAgreement) {
+			global.console.log(
+				curFirstName,
+				curLastName,
+				curPhone,
+				curPassword,
+				curTosAgreement
+			);
+			if (
+				curFirstName &&
+				curLastName &&
+				curPhone &&
+				curPassword &&
+				curTosAgreement
+			) {
 				_data.read('users', curPhone, err => {
 					if (err) {
 						const curHashedPassword = helpers.hash(curPassword);
@@ -92,7 +114,9 @@ const handlers = {
 							callback(400, { Error: `Could not hash the user's password` });
 						}
 					} else {
-						callback(500, { Error: 'The user with that phone number is already exist' });
+						callback(500, {
+							Error: 'The user with that phone number is already exist',
+						});
 					}
 				});
 			} else {
@@ -101,11 +125,13 @@ const handlers = {
 		},
 		get: (data, callback) => {
 			const curPhone =
-				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 10
+				typeof data.queryStringObject.phone === 'string' &&
+				data.queryStringObject.phone.trim().length === 10
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
-				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+				const curToken =
+					typeof data.headers.token === 'string' ? data.headers.token : false;
 				handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
 					if (tokenIsValid) {
 						_data.read('users', curPhone, (err, __data) => {
@@ -127,24 +153,29 @@ const handlers = {
 		},
 		put: (data, callback) => {
 			const curFirstName =
-				typeof data.payload.firstName === 'string' && data.payload.firstName.trim().length > 0
+				typeof data.payload.firstName === 'string' &&
+				data.payload.firstName.trim().length > 0
 					? data.payload.firstName.trim()
 					: false;
 			const curLastName =
-				typeof data.payload.lastName === 'string' && data.payload.lastName.trim().length > 0
+				typeof data.payload.lastName === 'string' &&
+				data.payload.lastName.trim().length > 0
 					? data.payload.lastName.trim()
 					: false;
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
+				typeof data.payload.phone === 'string' &&
+				data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
-				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
+				typeof data.payload.password === 'string' &&
+				data.payload.password.trim().length > 0
 					? data.payload.password.trim()
 					: false;
 			if (curPhone) {
 				if (curFirstName || curLastName || curPassword) {
-					const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+					const curToken =
+						typeof data.headers.token === 'string' ? data.headers.token : false;
 					handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
 						if (tokenIsValid) {
 							_data.read('users', curPhone, (err, userData) => {
@@ -183,11 +214,13 @@ const handlers = {
 		},
 		delete: (data, callback) => {
 			const curPhone =
-				typeof data.queryStringObject.phone === 'string' && data.queryStringObject.phone.trim().length === 10
+				typeof data.queryStringObject.phone === 'string' &&
+				data.queryStringObject.phone.trim().length === 10
 					? data.queryStringObject.phone.trim()
 					: false;
 			if (curPhone) {
-				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+				const curToken =
+					typeof data.headers.token === 'string' ? data.headers.token : false;
 				handlers.sub_tokens.verifyToken(curToken, curPhone, tokenIsValid => {
 					if (tokenIsValid) {
 						_data.read('users', curPhone, (err, userData) => {
@@ -196,7 +229,8 @@ const handlers = {
 									if (!_err) {
 										// Delete each of the checks associated with the user
 										const curUserChecks =
-											typeof userData.checks === 'object' && userData.checks instanceof Array
+											typeof userData.checks === 'object' &&
+											userData.checks instanceof Array
 												? userData.checks
 												: [];
 										const checksToDelete = curUserChecks.length;
@@ -226,7 +260,9 @@ const handlers = {
 										}
 									} else {
 										global.console.log(_err);
-										callback(500, { Error: 'Could not delete the specified user' });
+										callback(500, {
+											Error: 'Could not delete the specified user',
+										});
 									}
 								});
 							} else {
@@ -245,11 +281,13 @@ const handlers = {
 	sub_tokens: {
 		post: (data, callback) => {
 			const curPhone =
-				typeof data.payload.phone === 'string' && data.payload.phone.trim().length === 10
+				typeof data.payload.phone === 'string' &&
+				data.payload.phone.trim().length === 10
 					? data.payload.phone.trim()
 					: false;
 			const curPassword =
-				typeof data.payload.password === 'string' && data.payload.password.trim().length > 0
+				typeof data.payload.password === 'string' &&
+				data.payload.password.trim().length > 0
 					? data.payload.password.trim()
 					: false;
 			if (curPhone && curPassword) {
@@ -284,7 +322,8 @@ const handlers = {
 		},
 		get: (data, callback) => {
 			const curTokenId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+				typeof data.queryStringObject.id === 'string' &&
+				data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
 			if (curTokenId) {
@@ -301,11 +340,14 @@ const handlers = {
 		},
 		put: (data, callback) => {
 			const curTokenId =
-				typeof data.payload.id === 'string' && data.payload.id.trim().length === 20
+				typeof data.payload.id === 'string' &&
+				data.payload.id.trim().length === 20
 					? data.payload.id.trim()
 					: false;
 			const curTokenExtend =
-				typeof data.payload.extend === 'boolean' && data.payload.extend ? data.payload.extend : false;
+				typeof data.payload.extend === 'boolean' && data.payload.extend
+					? data.payload.extend
+					: false;
 			if (curTokenExtend && curTokenId) {
 				_data.read('tokens', curTokenId, (err, tokenData) => {
 					if (!err && tokenData) {
@@ -315,7 +357,9 @@ const handlers = {
 								if (!_err) {
 									callback(200);
 								} else {
-									callback(500, { Error: 'Could not update the specified token' });
+									callback(500, {
+										Error: 'Could not update the specified token',
+									});
 								}
 							});
 						} else {
@@ -331,7 +375,8 @@ const handlers = {
 		},
 		delete: (data, callback) => {
 			const curTokenId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+				typeof data.queryStringObject.id === 'string' &&
+				data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
 			if (curTokenId) {
@@ -342,7 +387,9 @@ const handlers = {
 								callback(200);
 							} else {
 								global.console.log(_err);
-								callback(500, { Error: 'Could not delete the specified token' });
+								callback(500, {
+									Error: 'Could not delete the specified token',
+								});
 							}
 						});
 					} else {
@@ -378,11 +425,13 @@ const handlers = {
 	sub_checks: {
 		post: (data, callback) => {
 			const curProtocol =
-				typeof data.payload.protocol === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1
+				typeof data.payload.protocol === 'string' &&
+				['http', 'https'].indexOf(data.payload.protocol) > -1
 					? data.payload.protocol
 					: false;
 			const curUrl =
-				typeof data.payload.url === 'string' && data.payload.url.trim().length > 0
+				typeof data.payload.url === 'string' &&
+				data.payload.url.trim().length > 0
 					? data.payload.url.trim()
 					: false;
 			const curMethod =
@@ -403,9 +452,16 @@ const handlers = {
 				data.payload.timeoutSeconds <= 5
 					? data.payload.timeoutSeconds
 					: false;
-			if (curProtocol && curUrl && curMethod && curSuccessCodes && curTimeoutSeconds) {
+			if (
+				curProtocol &&
+				curUrl &&
+				curMethod &&
+				curSuccessCodes &&
+				curTimeoutSeconds
+			) {
 				// Get the token from the headers
-				const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+				const curToken =
+					typeof data.headers.token === 'string' ? data.headers.token : false;
 				// Lookup the user by reading the token
 				_data.read('tokens', curToken, (err, tokenData) => {
 					if (!err && tokenData) {
@@ -414,7 +470,8 @@ const handlers = {
 						_data.read('users', curUserPhone, (_err, userData) => {
 							if (!_err && userData) {
 								const curUserChecks =
-									typeof userData.checks === 'object' && userData.checks instanceof Array
+									typeof userData.checks === 'object' &&
+									userData.checks instanceof Array
 										? userData.checks
 										: [];
 								// Verify that the user has less then the number of max-checks-per-user
@@ -444,17 +501,22 @@ const handlers = {
 													callback(200, checkObject);
 												} else {
 													callback(500, {
-														Error: 'Could not update the user with the new check',
+														Error:
+															'Could not update the user with the new check',
 													});
 												}
 											});
 										} else {
-											callback(500, { Error: 'Could not create the new check' });
+											callback(500, {
+												Error: 'Could not create the new check',
+											});
 										}
 									});
 								} else {
 									callback(400, {
-										Error: `The user already has the maximum number of checks: ${config.maxChecks}`,
+										Error: `The user already has the maximum number of checks: ${
+											config.maxChecks
+										}`,
 									});
 								}
 							} else {
@@ -467,25 +529,35 @@ const handlers = {
 					}
 				});
 			} else {
-				callback(400, { Error: 'Missing require fields or inputs are invalid' });
+				callback(400, {
+					Error: 'Missing require fields or inputs are invalid',
+				});
 			}
 		},
 		get: (data, callback) => {
 			const curId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+				typeof data.queryStringObject.id === 'string' &&
+				data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
 			if (curId) {
 				_data.read('checks', curId, (err, checkData) => {
 					if (!err && checkData) {
-						const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
-						handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
-							if (tokenIsValid) {
-								callback(200, checkData);
-							} else {
-								callback(403);
+						const curToken =
+							typeof data.headers.token === 'string'
+								? data.headers.token
+								: false;
+						handlers.sub_tokens.verifyToken(
+							curToken,
+							checkData.userPhone,
+							tokenIsValid => {
+								if (tokenIsValid) {
+									callback(200, checkData);
+								} else {
+									callback(403);
+								}
 							}
-						});
+						);
 					} else {
 						callback(404);
 					}
@@ -501,15 +573,18 @@ const handlers = {
 		 */
 		put: (data, callback) => {
 			const curId =
-				typeof data.payload.id === 'string' && data.payload.id.trim().length === 20
+				typeof data.payload.id === 'string' &&
+				data.payload.id.trim().length === 20
 					? data.payload.id.trim()
 					: false;
 			const curProtocol =
-				typeof data.payload.protocol === 'string' && ['http', 'https'].indexOf(data.payload.protocol) > -1
+				typeof data.payload.protocol === 'string' &&
+				['http', 'https'].indexOf(data.payload.protocol) > -1
 					? data.payload.protocol
 					: false;
 			const curUrl =
-				typeof data.payload.url === 'string' && data.payload.url.trim().length > 0
+				typeof data.payload.url === 'string' &&
+				data.payload.url.trim().length > 0
 					? data.payload.url.trim()
 					: false;
 			const curMethod =
@@ -533,41 +608,54 @@ const handlers = {
 			// Check to make sure id is valid
 			if (curId) {
 				// Check to make sure one or more optional fields has been sent
-				if (curProtocol || curUrl || curMethod || curSuccessCodes || curTimeoutSeconds) {
+				if (
+					curProtocol ||
+					curUrl ||
+					curMethod ||
+					curSuccessCodes ||
+					curTimeoutSeconds
+				) {
 					// Lookup the check
 					_data.read('checks', curId, (err, checkData) => {
 						if (!err && checkData) {
 							// Get the token from the headers
-							const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
+							const curToken =
+								typeof data.headers.token === 'string'
+									? data.headers.token
+									: false;
 							// Verify token
-							handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
-								if (tokenIsValid) {
-									if (curProtocol) {
-										checkData.protocol = curProtocol;
-									}
-									if (curUrl) {
-										checkData.url = curUrl;
-									}
-									if (curMethod) {
-										checkData.method = curMethod;
-									}
-									if (curSuccessCodes) {
-										checkData.successCodes = curSuccessCodes;
-									}
-									if (curTimeoutSeconds) {
-										checkData.timeoutSeconds = curTimeoutSeconds;
-									}
-									_data.update('checks', curId, checkData, _err => {
-										if (!_err) {
-											callback(200);
-										} else {
-											callback(500, { Error: 'Could not update the check' });
+							handlers.sub_tokens.verifyToken(
+								curToken,
+								checkData.userPhone,
+								tokenIsValid => {
+									if (tokenIsValid) {
+										if (curProtocol) {
+											checkData.protocol = curProtocol;
 										}
-									});
-								} else {
-									callback(400, { Error: 'The token is invalid' });
+										if (curUrl) {
+											checkData.url = curUrl;
+										}
+										if (curMethod) {
+											checkData.method = curMethod;
+										}
+										if (curSuccessCodes) {
+											checkData.successCodes = curSuccessCodes;
+										}
+										if (curTimeoutSeconds) {
+											checkData.timeoutSeconds = curTimeoutSeconds;
+										}
+										_data.update('checks', curId, checkData, _err => {
+											if (!_err) {
+												callback(200);
+											} else {
+												callback(500, { Error: 'Could not update the check' });
+											}
+										});
+									} else {
+										callback(400, { Error: 'The token is invalid' });
+									}
 								}
-							});
+							);
 						} else {
 							callback(403);
 						}
@@ -586,52 +674,78 @@ const handlers = {
 		 */
 		delete: (data, callback) => {
 			const curId =
-				typeof data.queryStringObject.id === 'string' && data.queryStringObject.id.trim().length === 20
+				typeof data.queryStringObject.id === 'string' &&
+				data.queryStringObject.id.trim().length === 20
 					? data.queryStringObject.id.trim()
 					: false;
 			if (curId) {
 				_data.read('checks', curId, (err, checkData) => {
 					if (!err && checkData) {
-						const curToken = typeof data.headers.token === 'string' ? data.headers.token : false;
-						handlers.sub_tokens.verifyToken(curToken, checkData.userPhone, tokenIsValid => {
-							if (tokenIsValid) {
-								// Delete the check data
-								_data.delete('checks', curId, _err => {
-									if (!_err) {
-										_data.read('users', checkData.userPhone, (__err, userData) => {
-											if (!__err && userData) {
-												const curUserChecks =
-													typeof userData.checks === 'object' &&
-													userData.checks instanceof Array
-														? userData.checks
-														: [];
-												const curCheckPosition = curUserChecks.indexOf(curId);
-												if (curCheckPosition > -1) {
-													curUserChecks.splice(curCheckPosition, 1);
-													_data.update('users', checkData.userPhone, userData, ___err => {
-														if (!___err) {
-															callback(200);
+						const curToken =
+							typeof data.headers.token === 'string'
+								? data.headers.token
+								: false;
+						handlers.sub_tokens.verifyToken(
+							curToken,
+							checkData.userPhone,
+							tokenIsValid => {
+								if (tokenIsValid) {
+									// Delete the check data
+									_data.delete('checks', curId, _err => {
+										if (!_err) {
+											_data.read(
+												'users',
+												checkData.userPhone,
+												(__err, userData) => {
+													if (!__err && userData) {
+														const curUserChecks =
+															typeof userData.checks === 'object' &&
+															userData.checks instanceof Array
+																? userData.checks
+																: [];
+														const curCheckPosition = curUserChecks.indexOf(
+															curId
+														);
+														if (curCheckPosition > -1) {
+															curUserChecks.splice(curCheckPosition, 1);
+															_data.update(
+																'users',
+																checkData.userPhone,
+																userData,
+																___err => {
+																	if (!___err) {
+																		callback(200);
+																	} else {
+																		callback(500, {
+																			Error: 'Could not update the user',
+																		});
+																	}
+																}
+															);
 														} else {
-															callback(500, { Error: 'Could not update the user' });
+															callback(500, {
+																Error: 'Could not find the check',
+															});
 														}
-													});
-												} else {
-													callback(500, { Error: 'Could not find the check' });
+													} else {
+														callback(500, {
+															Error:
+																'Could not find the user who created the check',
+														});
+													}
 												}
-											} else {
-												callback(500, {
-													Error: 'Could not find the user who created the check',
-												});
-											}
-										});
-									} else {
-										callback(500, { Error: 'Could not delete the current check' });
-									}
-								});
-							} else {
-								callback(403);
+											);
+										} else {
+											callback(500, {
+												Error: 'Could not delete the current check',
+											});
+										}
+									});
+								} else {
+									callback(403);
+								}
 							}
-						});
+						);
 					} else {
 						callback(400, { Error: 'Wrong id' });
 					}
