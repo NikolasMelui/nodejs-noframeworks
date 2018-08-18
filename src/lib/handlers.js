@@ -19,6 +19,21 @@ const handlers = {
 	 *
 	 */
 
+	// Index handler
+	index: (data, callback) => {
+		if (data.method === 'get') {
+			helpers.getTemplate('index', (err, str) => {
+				if (!err && str) {
+					callback(200, str, 'html');
+				} else {
+					callback(500, undefined, 'html');
+				}
+			});
+		} else {
+			callback(undefined, undefined, 'html');
+		}
+	},
+
 	/*
 	 * JSON API Handlers
 	 * 
