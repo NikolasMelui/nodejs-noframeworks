@@ -107,6 +107,19 @@ const helpers = {
 			callback('Given parameters were missing or invalid');
 		}
 	},
+
+	// Get the string content of a template
+	getTemplate: (_templateName, callback) => {
+		const templateName =
+			typeof _templateName === 'string' && _templateName.length > 0
+				? _templateName
+				: false;
+		if (templateName) {
+			const templatesDir = path.join(__dirname, '../templates/');
+		} else {
+			callback('A valid template name was not specified');
+		}
+	},
 };
 
 export default helpers;
