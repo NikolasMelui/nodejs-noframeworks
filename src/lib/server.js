@@ -69,7 +69,10 @@ const server = {
 
 			debug(data);
 
-			chosenHandler(data, (_statusCode, _payload) => {
+			chosenHandler(data, (_statusCode, _payload, _contentType) => {
+				// Determine the type of the response (fallback to JSON)
+				const contentType =
+					typeof _contentType === 'string' ? _contentType : 'json';
 				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
 				const payload = typeof _payload === 'object' ? _payload : {};
 				const payloadString = JSON.stringify(payload);
