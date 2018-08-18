@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import https from 'https';
 import querystring from 'querystring';
 import crypto from 'crypto';
@@ -23,12 +25,17 @@ const helpers = {
 		}
 	},
 	createRandomString: argStringLength => {
-		const curStringLength = typeof argStringLength === 'number' && argStringLength > 0 ? argStringLength : false;
+		const curStringLength =
+			typeof argStringLength === 'number' && argStringLength > 0
+				? argStringLength
+				: false;
 		if (curStringLength) {
 			const allChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 			let randomString = '';
 			for (let i = 0; i < curStringLength; i += 1) {
-				const randomChar = allChars.charAt(Math.floor(Math.random() * allChars.length));
+				const randomChar = allChars.charAt(
+					Math.floor(Math.random() * allChars.length)
+				);
 				randomString += randomChar;
 			}
 			return randomString;
@@ -39,9 +46,14 @@ const helpers = {
 	// Send an SMS message via Twilio
 	sendTwilioSms: (phone, message, callback) => {
 		// Validate parametres
-		const curPhone = typeof phone === 'string' && phone.trim().length === 10 ? phone.trim() : false;
+		const curPhone =
+			typeof phone === 'string' && phone.trim().length === 10
+				? phone.trim()
+				: false;
 		const curMessage =
-			typeof message === 'string' && message.trim().length > 0 && message.trim().length <= 1600
+			typeof message === 'string' &&
+			message.trim().length > 0 &&
+			message.trim().length <= 1600
 				? message.trim()
 				: false;
 		if (curPhone && curMessage) {
@@ -60,7 +72,9 @@ const helpers = {
 				protocol: 'https:',
 				hostname: 'api.twilio.com',
 				method: 'POST',
-				path: `https://api.twilio.com/2010-04-01/Accounts/${config.twilio.accountSid}/Messages.json`,
+				path: `https://api.twilio.com/2010-04-01/Accounts/${
+					config.twilio.accountSid
+				}/Messages.json`,
 				auth: `${config.twilio.accountSid}:${config.twilio.authToken}`,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
