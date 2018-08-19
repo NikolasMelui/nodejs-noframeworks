@@ -10,7 +10,7 @@
 		"start": "nodemon src/index.js --exec babel-node",
 		"build": "babel src -d build",
 		"startbuild": "node build/index.js",
-		"start:build": "npm run-script build && npm run-script startbuild",
+		"start:build": "cp -r ./src/templates ./build/  && npm run-script build && npm run-script startbuild",
 		"debug": "nodemon --inspect src/index.js --exec babel-node"
 	},
 	"devDependencies": {
