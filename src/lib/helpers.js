@@ -109,16 +109,19 @@ const helpers = {
 	},
 
 	// Get the string content of a template
-	getTemplate: (_templateName, callback) => {
+	getTemplate: (_templateName, _data, callback) => {
 		const templateName =
 			typeof _templateName === 'string' && _templateName.length > 0
 				? _templateName
 				: false;
+		const data = typeof _data === 'object' && _data !== null ? _data : {};
 		if (templateName) {
 			const templatesDir = path.join(__dirname, '../templates/');
 			fs.readFile(`${templatesDir}${templateName}.html`, 'utf8', (err, str) => {
 				if (!err && str && str.length > 0) {
-					callback(false, str);
+					// Do interpolation on the string
+					const interpolatedString = helpers.interpolate(str);
+					callback(false, interpolatedString);
 				} else {
 					callback('No template could be found');
 				}
