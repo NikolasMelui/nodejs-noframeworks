@@ -120,7 +120,7 @@ const helpers = {
 			fs.readFile(`${templatesDir}${templateName}.html`, 'utf8', (err, str) => {
 				if (!err && str && str.length > 0) {
 					// Do interpolation on the string
-					const interpolatedString = helpers.interpolate(str);
+					const interpolatedString = helpers.interpolate(str, data);
 					callback(false, interpolatedString);
 				} else {
 					callback('No template could be found');
@@ -129,6 +129,29 @@ const helpers = {
 		} else {
 			callback('A valid template name was not specified');
 		}
+	},
+
+	// Add the universal header and footer to a string, and pass provided data object to the header and footer for interpolation
+	addUniversalTemplates: (_str, _data, callback) => {
+		const str = typeof _str === 'string' && _str.length > 0 ? _str : false;
+		const data = typeof _data === 'object' && _data !== null ? _data : {};
+		// Get the header
+		helpers.getTemplate('_header', data, (err, headerString) => {
+			if (!err && headerString) {
+				// Get the footer
+				helpers.getTemplate('_footer', data, (_err, footerString) => {
+					if (!_err && footerString) {
+						// Add them all together
+						const fullString = `${headerString}${str}${footerString}`;
+						callback(false, fullString);
+					} else {
+						callback('Could not find the footer template');
+					}
+				});
+			} else {
+				callback('Could not find the header template');
+			}
+		});
 	},
 
 	// Take a given string and a data object and find and replace all the keys within it
