@@ -127,6 +127,36 @@ const helpers = {
 			callback('A valid template name was not specified');
 		}
 	},
+
+	// Take a given string and a data object and find and replace all the keys within it
+	interpolate: (_str, _data) => {
+		let str = typeof _str === 'string' && _str.length > 0 ? _str : false;
+		const data = typeof _data === 'object' && _data !== null ? _data : {};
+
+		// Add the templateGlobals do the data object, prepending their key name with globals
+		Object.keys(config.templateGlobals).forEach(keyName => {
+			if (
+				Object.prototype.hasOwnProperty.call(config.templateGlobals, keyName)
+			) {
+				data[`global.${keyName}`] = config.templateGlobals[keyName];
+			}
+		});
+
+		// For each key in the data object, insert its value into the string at the corresponding placeholder
+		Object.keys(data).forEach(key => {
+			if (
+				Object.prototype.hasOwnProperty.call(data, key) &&
+				typeof data[key] === 'string'
+			) {
+				const replace = data[key];
+				const find = `{${key}}`;
+
+				str = str.replace(find, replace);
+			}
+		});
+
+		return str;
+	},
 };
 
 export default helpers;
