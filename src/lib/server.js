@@ -21,10 +21,19 @@ const debug = util.debuglog('server');
 const server = {
 	// Define the request routers
 	routers: {
+		'': handlers.index,
+		'account/create': handlers.accountCreate,
+		'account/edit': handlers.accountEdit,
+		'account/deleted': handlers.accountDeleted,
+		'session/create': handlers.sessionCreate,
+		'session/deleted': handlers.sessionDeleted,
+		'checks/all': handlers.checkList,
+		'checks/create': handlers.checkCreate,
+		'checks/edit': handlers.checkEdit,
+		'api/users': handlers.users,
+		'api/tokens': handlers.tokens,
+		'api/checks': handlers.checks,
 		ping: handlers.ping,
-		users: handlers.users,
-		tokens: handlers.tokens,
-		checks: handlers.checks,
 	},
 
 	unifiedServer: (req, res) => {
@@ -60,19 +69,42 @@ const server = {
 
 			debug(data);
 
-			chosenHandler(data, (_statusCode, _payload) => {
+			// Route the request to the handles specified in the router
+			chosenHandler(data, (_statusCode, _payload, _contentType) => {
+				// Determine the type of the response (fallback to JSON)
+				const contentType =
+					typeof _contentType === 'string' ? _contentType : 'json';
+				// Use the status code called back by the handler, or default to 200
 				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
-				const payload = typeof _payload === 'object' ? _payload : {};
-				const payloadString = JSON.stringify(payload);
-				res.setHeader('Content-Type', 'application/json');
+
+				// Return the response-parts that are content-specific
+				let payloadString = '';
+				if (contentType === 'json') {
+					res.setHeader('Content-Type', 'application/json');
+					const payload = typeof _payload === 'object' ? _payload : {};
+					payloadString = JSON.stringify(payload);
+				}
+
+				if (contentType === 'html') {
+					res.setHeader('Content-Type', 'text/html');
+					payloadString = typeof _payload === 'string' ? _payload : '';
+				}
+
+				// Returning the response-parts that are common to all content-types
 				res.writeHead(statusCode);
 				res.end(payloadString);
 
 				// If the response is 200 - print green, otherwise - print red
 				if (statusCode === 200) {
-					debug('\x1b[32m%s\x1b[0m', `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`);
+					debug(
+						'\x1b[32m%s\x1b[0m',
+						`${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
+					);
 				} else {
-					debug('\x1b[31m%s\x1b[0m', `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`);
+					debug(
+						'\x1b[31m%s\x1b[0m',
+						`${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
+					);
 				}
 
 				/**
@@ -104,11 +136,16 @@ const server = {
 
 	// Initial servers script
 	initServer: () => {
-		http.createServer((req, res) => {
-			server.unifiedServer(req, res);
-		}).listen(config.httpPort, () =>
-			global.console.log('\x1b[35m%s\x1b[0m', `Server is listening on port: ${config.httpPort}.`)
-		);
+		http
+			.createServer((req, res) => {
+				server.unifiedServer(req, res);
+			})
+			.listen(config.httpPort, () =>
+				global.console.log(
+					'\x1b[35m%s\x1b[0m',
+					`Server is listening on port: ${config.httpPort}.`
+				)
+			);
 		// https
 		// 	.createServer((req, res) => {
 		// 		server.unifiedServer(req, res);
