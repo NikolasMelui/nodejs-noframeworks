@@ -116,6 +116,13 @@ const helpers = {
 				: false;
 		if (templateName) {
 			const templatesDir = path.join(__dirname, '../templates/');
+			fs.readFile(`${templatesDir}${templateName}.html`, 'utf8', (err, str) => {
+				if (!err && str && str.length > 0) {
+					callback(false, str);
+				} else {
+					callback('No template could be found');
+				}
+			});
 		} else {
 			callback('A valid template name was not specified');
 		}
