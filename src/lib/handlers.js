@@ -63,6 +63,46 @@ const handlers = {
 		}
 	},
 
+	// Public assets
+	public: (data, callback) => {
+		if (data.method === 'get') {
+			// Get the filename being requested
+			const trimmedAssetName = data.trimmedPath.replace('public/', '').trim();
+			if (trimmedAssetName.length > 0) {
+				// Read in the assets data
+				helpers.getStaticAsset(trimmedAssetName, (err, staticAssetData) => {
+					if (!err && staticAssetData) {
+						// Determine the content type (default to plain text)
+						let contentType;
+						switch (true) {
+							case trimmedAssetName.indexOf('.css') > -1:
+								contentType = 'css';
+								break;
+							case trimmedAssetName.indexOf('.png') > -1:
+								contentType = 'png';
+								break;
+							case trimmedAssetName.indexOf('.jpg') > -1:
+								contentType = 'png';
+								break;
+							case trimmedAssetName.indexOf('.ico') > -1:
+								contentType = 'png';
+								break;
+							default:
+								contentType = 'plain';
+								break;
+						}
+						callback(200, staticAssetData, contentType);
+					} else {
+						callback(404);
+					}
+				});
+			} else {
+				callback(404);
+			}
+		} else {
+			callback(405);
+		}
+	},
 	/*
 	 * JSON API Handlers
 	 * 
