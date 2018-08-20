@@ -22,18 +22,87 @@ const handlers = {
 	// Index handler
 	index: (data, callback) => {
 		if (data.method === 'get') {
-			helpers.getTemplate('index', (err, str) => {
+			// Prepare data for interpolation
+			const templateData = {
+				'haad.title': 'This is the title',
+				'head.discription': 'This is the meta description',
+				'body.title': 'Hello templated world!',
+				'body.class': 'index',
+			};
+			// Read in a template as a string
+			helpers.getTemplate('index', templateData, (err, str) => {
 				if (!err && str) {
-					callback(200, str, 'html');
+					// Add the universal header and footer
+					helpers.addUniversalTemplates(str, templateData, (_err, _str) => {
+						if (!_err && _str) {
+							callback(200, _str, 'html');
+						} else {
+							callback(500, undefined, 'html');
+						}
+					});
 				} else {
 					callback(500, undefined, 'html');
 				}
 			});
-		} else {
-			callback(undefined, undefined, 'html');
 		}
 	},
 
+	// Favicon handler
+	favicon: (data, callback) => {
+		if (data.method === 'get') {
+			// Read in the favicon's data
+			helpers.getStaticAsset('favicon.ico', (err, staticAssetData) => {
+				if (!err && staticAssetData) {
+					callback(200, staticAssetData, 'favicon');
+				} else {
+					callback(500);
+				}
+			});
+		} else {
+			callback(405);
+		}
+	},
+
+	// Public assets
+	public: (data, callback) => {
+		if (data.method === 'get') {
+			// Get the filename being requested
+			const trimmedAssetName = data.trimmedPath.replace('public/', '').trim();
+			if (trimmedAssetName.length > 0) {
+				// Read in the assets data
+				helpers.getStaticAsset(trimmedAssetName, (err, staticAssetData) => {
+					if (!err && staticAssetData) {
+						// Determine the content type (default to plain text)
+						let contentType;
+						switch (true) {
+							case trimmedAssetName.indexOf('.css') > -1:
+								contentType = 'css';
+								break;
+							case trimmedAssetName.indexOf('.png') > -1:
+								contentType = 'png';
+								break;
+							case trimmedAssetName.indexOf('.jpg') > -1:
+								contentType = 'png';
+								break;
+							case trimmedAssetName.indexOf('.ico') > -1:
+								contentType = 'png';
+								break;
+							default:
+								contentType = 'plain';
+								break;
+						}
+						callback(200, staticAssetData, contentType);
+					} else {
+						callback(404);
+					}
+				});
+			} else {
+				callback(404);
+			}
+		} else {
+			callback(405);
+		}
+	},
 	/*
 	 * JSON API Handlers
 	 * 

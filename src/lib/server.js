@@ -21,6 +21,8 @@ const debug = util.debuglog('server');
 const server = {
 	// Define the request routers
 	routers: {
+		// Dinamic routers
+		ping: handlers.ping,
 		'': handlers.index,
 		'account/create': handlers.accountCreate,
 		'account/edit': handlers.accountEdit,
@@ -33,7 +35,9 @@ const server = {
 		'api/users': handlers.users,
 		'api/tokens': handlers.tokens,
 		'api/checks': handlers.checks,
-		ping: handlers.ping,
+		// Static routers
+		'favicon.ico': handlers.favicon,
+		public: handlers.public,
 	},
 
 	unifiedServer: (req, res) => {
