@@ -47,6 +47,22 @@ const handlers = {
 		}
 	},
 
+	// Favicon handler
+	favicon: (data, callback) => {
+		if (data.method === 'get') {
+			// Read in the favicon's data
+			helpers.getStaticAsset('favicon.ico', (err, staticAssetData) => {
+				if (!err && staticAssetData) {
+					callback(200, staticAssetData, 'favicon');
+				} else {
+					callback(500);
+				}
+			});
+		} else {
+			callback(405);
+		}
+	},
+
 	/*
 	 * JSON API Handlers
 	 * 
