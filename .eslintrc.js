@@ -6,6 +6,7 @@ module.exports = {
   },
   extends: ['prettier'],
   parserOptions: {
+    sourceType: 'module',
     ecmaVersion: 8
   },
   rules: {
