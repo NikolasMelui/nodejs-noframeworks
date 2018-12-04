@@ -71,25 +71,21 @@ const handlers = {
       if (trimmedAssetName.length > 0) {
         // Read in the assets data
         helpers.getStaticAsset(trimmedAssetName, (err, staticAssetData) => {
+          // console.log(trimmedAssetName);
           if (!err && staticAssetData) {
             // Determine the content type (default to plain text)
-            let contentType;
-            switch (true) {
-              case trimmedAssetName.includes('.css'):
-                contentType = 'css';
-                break;
-              case trimmedAssetName.includes('.png'):
-                contentType = 'png';
-                break;
-              case trimmedAssetName.includes('.jpg'):
-                contentType = 'png';
-                break;
-              case trimmedAssetName.includes('.ico'):
-                contentType = 'png';
-                break;
-              default:
-                contentType = 'plain';
-                break;
+            let contentType = 'plain';
+            if (trimmedAssetName.includes('.css')) {
+              contentType = 'css';
+            }
+            if (trimmedAssetName.includes('.png')) {
+              contentType = 'png';
+            }
+            if (trimmedAssetName.includes('.jpg')) {
+              contentType = 'jpg';
+            }
+            if (trimmedAssetName.includes('.ico')) {
+              contentType = 'icon';
             }
             callback(200, staticAssetData, contentType);
           } else {
@@ -158,7 +154,7 @@ const handlers = {
         data.payload.tosAgreement === true
           ? data.payload.tosAgreement
           : false;
-      global.console.log(
+      console.log(
         curFirstName,
         curLastName,
         curPhone,
@@ -188,7 +184,7 @@ const handlers = {
                 if (!_err) {
                   callback(200);
                 } else {
-                  global.console.log(_err);
+                  console.log(_err);
                   callback(500, {
                     Error: 'Could not create the new user. Datasystem error.'
                   });
@@ -223,7 +219,7 @@ const handlers = {
                 delete __data.hashedPassword;
                 callback(200, __data);
               } else {
-                global.console.log(err);
+                console.log(err);
                 callback(404);
               }
             });
@@ -277,7 +273,7 @@ const handlers = {
                     if (!_err) {
                       callback(200);
                     } else {
-                      global.console.log(_err);
+                      console.log(_err);
                       callback(400, { Error: 'Could not update the user' });
                     }
                   });
@@ -343,7 +339,7 @@ const handlers = {
                       callback(200);
                     }
                   } else {
-                    global.console.log(_err);
+                    console.log(_err);
                     callback(500, {
                       Error: 'Could not delete the specified user'
                     });
@@ -470,7 +466,7 @@ const handlers = {
               if (!_err) {
                 callback(200);
               } else {
-                global.console.log(_err);
+                console.log(_err);
                 callback(500, {
                   Error: 'Could not delete the specified token'
                 });
