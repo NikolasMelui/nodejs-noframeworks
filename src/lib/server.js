@@ -19,143 +19,167 @@ const debug = util.debuglog('server');
 // helpers.sendTwilioSms('9093442211', 'Hello, Nick!', error => debug(`This was the error: ${error}`));
 
 const server = {
-	// Define the request routers
-	routers: {
-		// Dinamic routers
-		ping: handlers.ping,
-		'': handlers.index,
-		'account/create': handlers.accountCreate,
-		'account/edit': handlers.accountEdit,
-		'account/deleted': handlers.accountDeleted,
-		'session/create': handlers.sessionCreate,
-		'session/deleted': handlers.sessionDeleted,
-		'checks/all': handlers.checkList,
-		'checks/create': handlers.checkCreate,
-		'checks/edit': handlers.checkEdit,
-		'api/users': handlers.users,
-		'api/tokens': handlers.tokens,
-		'api/checks': handlers.checks,
-		// Static routers
-		'favicon.ico': handlers.favicon,
-		public: handlers.public,
-	},
+  // Define request routes
+  routers: {
+    // Dinamic routes
+    ping: handlers.ping,
+    '': handlers.index,
+    'account/create': handlers.accountCreate,
+    'account/edit': handlers.accountEdit,
+    'account/deleted': handlers.accountDeleted,
+    'session/create': handlers.sessionCreate,
+    'session/deleted': handlers.sessionDeleted,
+    'checks/all': handlers.checkList,
+    'checks/create': handlers.checkCreate,
+    'checks/edit': handlers.checkEdit,
+    'api/users': handlers.users,
+    'api/tokens': handlers.tokens,
+    'api/checks': handlers.checks,
+    // Static routes
+    'favicon.ico': handlers.favicon,
+    public: handlers.public
+  },
 
-	unifiedServer: (req, res) => {
-		const reqParsedUrl = url.parse(req.url, true);
-		const reqPath = reqParsedUrl.pathname;
-		const reqQueryStringObject = reqParsedUrl.query;
-		const reqTrimmedPath = reqPath.replace(/^\/+|\/+$/g, '');
-		const reqMethod = req.method.toLowerCase();
-		const reqHeaders = req.headers;
+  unifiedServer: (req, res) => {
+    const reqParsedUrl = url.parse(req.url, true);
+    const reqPath = reqParsedUrl.pathname;
+    const reqQueryStringObject = reqParsedUrl.query;
+    const reqTrimmedPath = reqPath.replace(/^\/+|\/+$/g, '');
+    const reqMethod = req.method.toLowerCase();
+    const reqHeaders = req.headers;
 
-		const decoder = new StringDecoder('utf-8');
-		let reqPayload = '';
+    const decoder = new StringDecoder('utf-8');
+    let reqPayload = '';
 
-		// @TODO: get new functional code for this chunk of stringDecoder code.
-		req.on('data', data => {
-			reqPayload += decoder.write(data);
-		});
-		req.on('end', () => {
-			reqPayload += decoder.end();
+    req.on('data', data => {
+      reqPayload += decoder.write(data);
+    });
+    req.on('end', () => {
+      reqPayload += decoder.end();
 
-			const chosenHandler =
-				typeof server.routers[reqTrimmedPath] !== 'undefined'
-					? server.routers[reqTrimmedPath]
-					: handlers.notFound;
+      let chosenHandler =
+        typeof server.routers[reqTrimmedPath] !== 'undefined'
+          ? server.routers[reqTrimmedPath]
+          : handlers.notFound;
 
-			const data = {
-				trimmedPath: reqTrimmedPath,
-				queryStringObject: reqQueryStringObject,
-				method: reqMethod,
-				headers: reqHeaders,
-				payload: helpers.parseJsonToObject(reqPayload),
-			};
+      // If the request is within the public directory, use the public handler instead
+      chosenHandler = reqTrimmedPath.includes('public/')
+        ? handlers.public
+        : chosenHandler;
 
-			debug(data);
+      const data = {
+        trimmedPath: reqTrimmedPath,
+        queryStringObject: reqQueryStringObject,
+        method: reqMethod,
+        headers: reqHeaders,
+        payload: helpers.parseJsonToObject(reqPayload)
+      };
 
-			// Route the request to the handles specified in the router
-			chosenHandler(data, (_statusCode, _payload, _contentType) => {
-				// Determine the type of the response (fallback to JSON)
-				const contentType =
-					typeof _contentType === 'string' ? _contentType : 'json';
-				// Use the status code called back by the handler, or default to 200
-				const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
+      debug(data);
 
-				// Return the response-parts that are content-specific
-				let payloadString = '';
-				if (contentType === 'json') {
-					res.setHeader('Content-Type', 'application/json');
-					const payload = typeof _payload === 'object' ? _payload : {};
-					payloadString = JSON.stringify(payload);
-				}
+      // Route the request to the handles specified in the router
+      chosenHandler(data, (_statusCode, _payload, _contentType) => {
+        // Determine the type of the response (fallback to JSON)
+        const contentType =
+          typeof _contentType === 'string' ? _contentType : 'json';
+        // Use the status code called back by the handler, or default to 200
+        const statusCode = typeof _statusCode === 'number' ? _statusCode : 200;
 
-				if (contentType === 'html') {
-					res.setHeader('Content-Type', 'text/html');
-					payloadString = typeof _payload === 'string' ? _payload : '';
-				}
+        // Return the response-parts that are content-specific
+        const payloadString = [];
 
-				// Returning the response-parts that are common to all content-types
-				res.writeHead(statusCode);
-				res.end(payloadString);
+        if (contentType === 'json') {
+          res.setHeader('Content-Type', 'application/json');
+          const payload = typeof _payload === 'object' ? _payload : {};
+          payloadString.push(JSON.stringify(payload));
+        }
+        if (contentType === 'html') {
+          res.setHeader('Content-Type', 'text/html');
+          payloadString.push(typeof _payload === 'string' ? _payload : '');
+        }
+        if (contentType === 'favicon') {
+          res.setHeader('Content-Type', 'image/x-icon');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
+        }
+        if (contentType === 'css') {
+          res.setHeader('Content-Type', 'text/css');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
+        }
+        if (contentType === 'png') {
+          res.setHeader('Content-Type', 'image/png');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
+        }
+        if (contentType === 'jpg') {
+          res.setHeader('Content-Type', 'image/jpeg');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
+        }
+        if (contentType === 'plain') {
+          res.setHeader('Content-Type', 'text/plain');
+          payloadString.push(typeof _payload === 'string' ? _payload : '');
+        }
 
-				// If the response is 200 - print green, otherwise - print red
-				if (statusCode === 200) {
-					debug(
-						'\x1b[32m%s\x1b[0m',
-						`${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
-					);
-				} else {
-					debug(
-						'\x1b[31m%s\x1b[0m',
-						`${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
-					);
-				}
+        // Returning the response-parts that are common to all content-types
+        res.writeHead(statusCode);
+        res.end(payloadString[0]);
 
-				/**
-				 * @TEST: test function for data.json files.
-				 *
-				 */
+        // If the response is 200 - print green, otherwise - print red
+        if (statusCode === 200) {
+          debug(
+            '\x1b[32m%s\x1b[0m',
+            `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
+          );
+        } else {
+          debug(
+            '\x1b[31m%s\x1b[0m',
+            `${reqMethod.toUpperCase()} /${reqTrimmedPath} /${statusCode}`
+          );
+        }
 
-				// _data.create('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
+        /**
+         * @TEST: test function for data.json files.
+         *
+         */
 
-				// _data.read('test', 'newFile', (err, __data) =>
-				// 	debug(`This was the error: ${err}\n___\nAnd this was the data: ${__data}`)
-				// );
+        // _data.create('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
 
-				// _data.update('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
+        // _data.read('test', 'newFile', (err, __data) =>
+        // 	debug(`This was the error: ${err}\n___\nAnd this was the data: ${__data}`)
+        // );
 
-				// _data.delete('test', 'newFile', err => debug(`This was the error: ${err}`));
-			});
-		});
-	},
+        // _data.update('test', 'newFile', data.headers, err => debug(`This was the error: ${err}`));
 
-	// httpsServerOptions: {
-	// 	key: () => {
-	// 		fs.readFileSync(path.join(__dirname, '/../ssl/key.pem'));
-	// 	},
-	// 	cert: () => {
-	// 		fs.readFileSync(path.join(__dirname, '/../ssl/cert.pem'));
-	// 	},
-	// },
+        // _data.delete('test', 'newFile', err => debug(`This was the error: ${err}`));
+      });
+    });
+  },
 
-	// Initial servers script
-	initServer: () => {
-		http
-			.createServer((req, res) => {
-				server.unifiedServer(req, res);
-			})
-			.listen(config.httpPort, () =>
-				global.console.log(
-					'\x1b[35m%s\x1b[0m',
-					`Server is listening on port: ${config.httpPort}.`
-				)
-			);
-		// https
-		// 	.createServer((req, res) => {
-		// 		server.unifiedServer(req, res);
-		// 	})
-		// 	.listen(config.httpsPort, () => debug(`Server is listening on port: ${config.httpsPort}.`));
-	},
+  // httpsServerOptions: {
+  // 	key: () => {
+  // 		fs.readFileSync(path.join(__dirname, '/../ssl/key.pem'));
+  // 	},
+  // 	cert: () => {
+  // 		fs.readFileSync(path.join(__dirname, '/../ssl/cert.pem'));
+  // 	},
+  // },
+
+  // Initial servers script
+  initServer: () => {
+    http
+      .createServer((req, res) => {
+        server.unifiedServer(req, res);
+      })
+      .listen(config.httpPort, () =>
+        console.log(
+          '\x1b[35m%s\x1b[0m',
+          `Server is listening on port: ${config.httpPort}.`
+        )
+      );
+    // https
+    // 	.createServer((req, res) => {
+    // 		server.unifiedServer(req, res);
+    // 	})
+    // 	.listen(config.httpsPort, () => debug(`Server is listening on port: ${config.httpsPort}.`));
+  }
 };
 
 export default server;
