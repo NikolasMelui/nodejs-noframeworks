@@ -19,9 +19,9 @@ const debug = util.debuglog('server');
 // helpers.sendTwilioSms('9093442211', 'Hello, Nick!', error => debug(`This was the error: ${error}`));
 
 const server = {
-  // Define the request routers
+  // Define request routes
   routers: {
-    // Dinamic routers
+    // Dinamic routes
     ping: handlers.ping,
     '': handlers.index,
     'account/create': handlers.accountCreate,
@@ -35,7 +35,7 @@ const server = {
     'api/users': handlers.users,
     'api/tokens': handlers.tokens,
     'api/checks': handlers.checks,
-    // Static routers
+    // Static routes
     'favicon.ico': handlers.favicon,
     public: handlers.public
   },
@@ -57,10 +57,15 @@ const server = {
     req.on('end', () => {
       reqPayload += decoder.end();
 
-      const chosenHandler =
+      let chosenHandler =
         typeof server.routers[reqTrimmedPath] !== 'undefined'
           ? server.routers[reqTrimmedPath]
           : handlers.notFound;
+
+      // If the request is within the public directory, use the public handler instead
+      chosenHandler = reqTrimmedPath.includes('public/')
+        ? handlers.public
+        : chosenHandler;
 
       const data = {
         trimmedPath: reqTrimmedPath,
@@ -94,22 +99,22 @@ const server = {
         }
         if (contentType === 'favicon') {
           res.setHeader('Content-Type', 'image/x-icon');
-          payloadString.push(typeof _payload === 'string' ? _payload : '');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
         }
         if (contentType === 'css') {
           res.setHeader('Content-Type', 'text/css');
-          payloadString.push(typeof _payload === 'string' ? _payload : '');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
         }
         if (contentType === 'png') {
           res.setHeader('Content-Type', 'image/png');
-          payloadString.push(typeof _payload === 'string' ? _payload : '');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
         }
         if (contentType === 'jpg') {
           res.setHeader('Content-Type', 'image/jpeg');
-          payloadString.push(typeof _payload === 'string' ? _payload : '');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
         }
         if (contentType === 'plain') {
-          res.setHeader('Content-Type', 'text/html');
+          res.setHeader('Content-Type', 'text/plain');
           payloadString.push(typeof _payload === 'string' ? _payload : '');
         }
 
@@ -164,7 +169,7 @@ const server = {
         server.unifiedServer(req, res);
       })
       .listen(config.httpPort, () =>
-        global.console.log(
+        console.log(
           '\x1b[35m%s\x1b[0m',
           `Server is listening on port: ${config.httpPort}.`
         )
