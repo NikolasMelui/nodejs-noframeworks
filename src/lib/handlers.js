@@ -78,6 +78,9 @@ const handlers = {
             if (trimmedAssetName.includes('.css')) {
               contentType = 'css';
             }
+            if (trimmedAssetName.includes('.js')) {
+              contentType = 'js';
+            }
             if (trimmedAssetName.includes('.png')) {
               contentType = 'png';
             }
