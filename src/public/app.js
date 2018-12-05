@@ -23,8 +23,21 @@ const app = {
           : {};
       payload = typeof payload === 'object' && payload !== null ? payload : {};
       callback = typeof callback === 'function' ? callback : false;
+
+      // For each query string parameter sent, add it to the path
+      const requestUrl = [`${path}?`];
+      for (let queryKey in queryStringObject) {
+        if (queryStringObject.hasOwnProperty(queryKey)) {
+          // If there is more than one querystring parameter has been added
+          if (requestUrl.length > 1) {
+            requestUrl.push('&');
+          }
+          // Add the key and value
+          requestUrl.push(`${queryKey}=${queryStringObject[queryKey]}`);
+        }
+      }
+      // Join requestUrl array to the string
+      requestUrl = requestUrl.join('');
     }
   }
 };
-
-console.log('Hello there!');
