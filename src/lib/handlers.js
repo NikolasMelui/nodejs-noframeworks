@@ -24,9 +24,9 @@ const handlers = {
     if (data.method === 'get') {
       // Prepare data for interpolation
       const templateData = {
-        'haad.title': 'This is the title',
-        'head.discription': 'This is the meta description',
-        'body.title': 'Hello templated world!',
+        'haad.title': 'Uptime Monitoring',
+        'head.discription':
+          "Full free uptime monitoring for HTTP/HTTPS web sites. When your site goes dows - we'll send you a SMS message to let you know.",
         'body.class': 'index'
       };
       // Read in a template as a string
@@ -77,6 +77,9 @@ const handlers = {
             let contentType = 'plain';
             if (trimmedAssetName.includes('.css')) {
               contentType = 'css';
+            }
+            if (trimmedAssetName.includes('.js')) {
+              contentType = 'js';
             }
             if (trimmedAssetName.includes('.png')) {
               contentType = 'png';

@@ -105,6 +105,10 @@ const server = {
           res.setHeader('Content-Type', 'text/css');
           payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
         }
+        if (contentType === 'js') {
+          res.setHeader('Content-Type', 'text/javascript');
+          payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
+        }
         if (contentType === 'png') {
           res.setHeader('Content-Type', 'image/png');
           payloadString.push(typeof _payload !== 'undefined' ? _payload : '');
