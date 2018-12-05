@@ -2,7 +2,7 @@
  * Frontend logic for the application
  */
 
-const apps = {
+const app = {
   config: {
     sessionToken: false
   },
@@ -25,19 +25,19 @@ const apps = {
       callback = typeof callback === 'function' ? callback : false;
 
       // For each query string parameter sent, add it to the path
-      const requestUrl = [`${path}?`];
+      const requestUrlArray = [`${path}?`];
       for (let queryKey in queryStringObject) {
         if (queryStringObject.hasOwnProperty(queryKey)) {
           // If there is more than one querystring parameter has been added
-          if (requestUrl.length > 1) {
-            requestUrl.push('&');
+          if (requestUrlArray.length > 1) {
+            requestUrlArray.push('&');
           }
           // Add the key and value
-          requestUrl.push(`${queryKey}=${queryStringObject[queryKey]}`);
+          requestUrlArray.push(`${queryKey}=${queryStringObject[queryKey]}`);
         }
       }
       // Join requestUrl array to the string
-      requestUrl = requestUrl.join('');
+      const requestUrl = requestUrlArray.join('');
 
       const xhr = new XMLHttpRequest();
       xhr.open(method, requestUrl, true);
@@ -73,6 +73,9 @@ const apps = {
           }
         }
       };
+
+      const payloadString = JSON.stringify(payload);
+      xhr.send(payloadString);
     }
   }
 };
