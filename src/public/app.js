@@ -79,5 +79,13 @@ const app = {
     }
   },
 
-  bindForms: () => {}
+  bindForms: () => {
+    document.querySelector('form').addEventListener('submit', event => {
+      // Stop it from submitting
+      event.preventDefault();
+      const formId = event.target.id;
+      const path = event.target.action;
+      const method = event.target.method.toUpperCase();
+    });
+  }
 };
