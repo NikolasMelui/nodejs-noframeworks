@@ -77,5 +77,23 @@ const app = {
       const payloadString = JSON.stringify(payload);
       xhr.send(payloadString);
     }
+  },
+
+  bindForms: () => {
+    document.querySelector('form').addEventListener('submit', event => {
+      // Stop it from submitting
+      event.preventDefault();
+      const formId = event.target.id;
+      const path = event.target.action;
+      const method = event.target.method.toUpperCase();
+
+      // Hide the error message (if it's currently show due to a previous error)
+      document.querySelector(`#${formId}.formError`).style.display = 'hidden';
+
+      // Turn the inputs into a payload
+      const payload = {};
+      const elements = event.target.elements;
+      console.log(elements);
+    });
   }
 };
