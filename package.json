@@ -9,8 +9,7 @@
   "scripts": {
     "start": "nodemon src/index.js --exec babel-node",
     "build": "babel src -d build",
-    "startbuild": "node build/index.js",
-    "start:build": "cp -r ./src/templates ./build/ && cp -r ./src/public ./build  && npm run-script build && npm run-script startbuild",
+    "start:build": "cp -r ./src/templates ./build/ && cp -r ./src/public ./build  && yarn build && node build/index.js",
     "debug": "nodemon --inspect src/index.js --exec babel-node"
   },
   "devDependencies": {
