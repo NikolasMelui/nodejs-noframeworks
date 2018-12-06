@@ -77,5 +77,7 @@ const app = {
       const payloadString = JSON.stringify(payload);
       xhr.send(payloadString);
     }
-  }
+  },
+
+  bindForms: () => {}
 };
