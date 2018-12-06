@@ -57,7 +57,7 @@ const handlers = {
         'body.class': 'accountCreate'
       };
       // Read in a template as a string
-      helpers.getTemplate('index', templateData, (err, str) => {
+      helpers.getTemplate('accountCreate', templateData, (err, str) => {
         if (!err && str) {
           // Add the universal header and footer
           helpers.addUniversalTemplates(str, templateData, (_err, _str) => {
