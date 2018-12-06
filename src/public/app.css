@@ -112,7 +112,7 @@ textarea {
 }
 
 /* Index */
-body.index h1 {
+h1 {
   text-align: center;
   font-size: 20px;
   text-transform: uppercase;
@@ -120,7 +120,7 @@ body.index h1 {
   padding: 0 0 5px 0;
 }
 
-body.index h2 {
+h2 {
   text-align: center;
   font-size: 13px;
   text-transform: uppercase;
@@ -142,11 +142,17 @@ body.index .blurb {
   font-size: 14px;
 }
 
-body.index .ctaWrapper {
+.ctaWrapper {
   text-align: center;
 }
 
-body.index .cta {
+.cta,
+a.cta:hover,
+a.cta:active,
+a.cta:visited,
+button.cta:hover,
+button.cta:active,
+button.cta:visited {
   background-color: #1a1a1a;
   color: #fff;
   border-radius: 10px;
@@ -156,12 +162,50 @@ body.index .cta {
   display: inline-block;
   padding: 15px;
   width: 150px;
+  cursor: pointer;
 }
 
-body.index .cta.blue {
-  background-color: #214478;
+.cta.blue {
+  background-color: #214478 !important;
 }
 
-body.index .cta.green {
-  background-color: #217844;
+.cta.green {
+  background-color: #217844 !important;
+}
+
+/* Form Styling for Account Creation page and others */
+.formWrapper {
+  margin: 0 auto;
+  max-width: 500px;
+  padding: 15px;
+}
+
+.formError {
+  display: none;
+  background-color: #c83737;
+  font-style: italic;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 0 0 15px 0;
+  text-align: center;
+  border-color: #d87070;
+  border-width: 2px;
+  border-style: solid;
+}
+
+input {
+  border-width: 1px;
+  border-radius: 2px;
+  padding: 7px 1%;
+  width: 100%;
+}
+
+.inputWrapper {
+  padding: 0 0 20px 0;
+}
+
+.inputLabel {
+  padding: 0 0 5px 0;
+  color: #808080;
 }
