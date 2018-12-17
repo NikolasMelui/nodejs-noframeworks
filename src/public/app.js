@@ -88,12 +88,56 @@ const app = {
       const method = event.target.method.toUpperCase();
 
       // Hide the error message (if it's currently show due to a previous error)
-      document.querySelector(`#${formId}.formError`).style.display = 'hidden';
+      console.log(formId);
+      document.querySelector(`#${formId} .formError`).style.display = 'hidden';
 
       // Turn the inputs into a payload
       const payload = {};
       const elements = event.target.elements;
-      console.log(elements);
+
+      for (let i = 0; i < elements.length; i++) {
+        if (elements[i].type !== 'submit') {
+          payload[elements[i].name] =
+            elements[i].type == 'checkbox'
+              ? elements[i].checked
+              : elements[i].value;
+        }
+      }
+
+      // Call the API
+      app.client.request(
+        undefined,
+        path,
+        method,
+        undefined,
+        payload,
+        (statusCode, responsePayload) => {
+          // Display an error on the form if needed
+          if (statusCode !== 200) {
+            // Try to get the error from the API, or set a default error message
+            const error =
+              typeof responsePayload.Error === 'string'
+                ? responsePayload.Error
+                : 'An error has occured, please try again';
+            // Set the formError field with the error text
+            document.querySelector(`#${formId} .formError`).innerHTML = error;
+            // Show the form error field
+            document.querySelector(`#${formId} .formError`).style.display =
+              'block';
+          }
+          // If there is no error - send to form response processor
+          app.formResponseProcessor(formId, payload, responsePayload);
+        }
+      );
     });
-  }
+  },
+  formResponseProcessor: (formId, requestPayload, responsePayload) => {
+    const functionToCall = false;
+    if (formId === 'accountCreate') {
+    }
+  },
+  // Init the app (bind all form submission)
+  init: () => app.bindForms()
 };
+
+window.onload = () => app.init();
