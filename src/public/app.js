@@ -201,6 +201,17 @@ const app = {
     }
   },
 
+  setSessionToken: token => {
+    app.config.sessionToken = token;
+    const tokenString = JSON.stringify(token);
+    localStorage.setItem('token', tokenString);
+    if (typeof token === 'object') {
+      app.setLoggedInClass(true);
+    } else {
+      app.setLoggedInClass(false);
+    }
+  },
+
   // Init the app
   init: () => {
     // Bind all form submissions
