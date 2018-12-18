@@ -191,6 +191,16 @@ const app = {
     }
   },
 
+  // Set (or remove) the loggedIn class from the body
+  setLoggedInClass: add => {
+    const target = document.querySelector('body');
+    if (add) {
+      target.classList.add('loggedIn');
+    } else {
+      target.classList.remove('loggedIn');
+    }
+  },
+
   // Init the app
   init: () => {
     // Bind all form submissions
