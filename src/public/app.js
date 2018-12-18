@@ -173,6 +173,23 @@ const app = {
       window.location = '/checks/all';
     }
   },
+  getSessionToken: () => {
+    const tokenString = localStorage.getItem('token');
+    if (typeof tokenString === 'string') {
+      try {
+        const token = JSON.parse(tokenString);
+        app.config.sessionToken = token;
+        if (typeof token === 'object') {
+          app.setLoggedInClass(true);
+        } else {
+          app.setLoggedInClass(false);
+        }
+      } catch (e) {
+        app.config.sessionToken = false;
+        app.setLoggedInClass(false);
+      }
+    }
+  },
 
   // Init the app
   init: () => {
