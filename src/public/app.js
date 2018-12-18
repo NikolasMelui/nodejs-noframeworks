@@ -80,20 +80,211 @@ const app = {
   },
 
   bindForms: () => {
-    document.querySelector('form').addEventListener('submit', event => {
-      // Stop it from submitting
-      event.preventDefault();
-      const formId = event.target.id;
-      const path = event.target.action;
-      const method = event.target.method.toUpperCase();
+    const submitButtons = document.querySelector('form');
+    if (submitButtons !== null) {
+      submitButtons.addEventListener('submit', event => {
+        // Stop it from submitting
+        event.preventDefault();
+        const formId = event.target.id;
+        const path = event.target.action;
+        const method = event.target.method.toUpperCase();
 
-      // Hide the error message (if it's currently show due to a previous error)
-      document.querySelector(`#${formId}.formError`).style.display = 'hidden';
+        // Hide the error message (if it's currently show due to a previous error)
+        console.log(formId);
+        document.querySelector(`#${formId} .formError`).style.display =
+          'hidden';
 
-      // Turn the inputs into a payload
-      const payload = {};
-      const elements = event.target.elements;
-      console.log(elements);
-    });
+        // Turn the inputs into a payload
+        const payload = {};
+        const elements = event.target.elements;
+
+        for (let i = 0; i < elements.length; i++) {
+          if (elements[i].type !== 'submit') {
+            payload[elements[i].name] =
+              elements[i].type == 'checkbox'
+                ? elements[i].checked
+                : elements[i].value;
+          }
+        }
+
+        // Call the API
+        app.client.request(
+          undefined,
+          path,
+          method,
+          undefined,
+          payload,
+          (statusCode, responsePayload) => {
+            // Display an error on the form if needed
+            if (statusCode !== 200) {
+              // Try to get the error from the API, or set a default error message
+              const error =
+                typeof responsePayload.Error === 'string'
+                  ? responsePayload.Error
+                  : 'An error has occured, please try again';
+              // Set the formError field with the error text
+              document.querySelector(`#${formId} .formError`).innerHTML = error;
+              // Show the form error field
+              document.querySelector(`#${formId} .formError`).style.display =
+                'block';
+            }
+            // If there is no error - send to form response processor
+            app.formResponseProcessor(formId, payload, responsePayload);
+          }
+        );
+      });
+    }
+  },
+  formResponseProcessor: (formId, requestPayload, responsePayload) => {
+    const functionToCall = false;
+    // If account creation was successful, try to immediately log the user in
+    if (formId === 'accountCreate') {
+      // Take the phone and password and use it to log the user in
+      const newPayload = {
+        phone: requestPayload.phone,
+        password: requestPayload.password
+      };
+      app.client.request(
+        undefined,
+        'api/tokens',
+        'POST',
+        undefined,
+        newPayload,
+        (newStatusCode, newResponsePayload) => {
+          // Display an error of the form if needed
+          if (newStatusCode !== 200) {
+            // Set the formError field with the error text
+            document.querySelector(`#${formId} .formError`).innerHTML =
+              'Sorry, an error has occured. Please try again.';
+            // Show the form error field
+            document.querySelector(`#${formId} .formError`).style.display =
+              'block';
+          } else {
+            // If successfull, set the token and redirect the user
+            app.setSessionToken(newResponsePayload);
+            window.location = '/checks/all';
+          }
+        }
+      );
+    }
+    // If login was successful, set the token in localstorage and redirect the user
+    if (formId === 'sessionCreate') {
+      app.setSessionToken(responsePayload);
+      window.location = '/checks/all';
+    }
+  },
+  getSessionToken: () => {
+    const tokenString = localStorage.getItem('token');
+    if (typeof tokenString === 'string') {
+      try {
+        const token = JSON.parse(tokenString);
+        app.config.sessionToken = token;
+        if (typeof token === 'object') {
+          app.setLoggedInClass(true);
+        } else {
+          app.setLoggedInClass(false);
+        }
+      } catch (e) {
+        app.config.sessionToken = false;
+        app.setLoggedInClass(false);
+      }
+    }
+  },
+
+  // Set (or remove) the loggedIn class from the body
+  setLoggedInClass: add => {
+    const target = document.querySelector('body');
+    if (add) {
+      target.classList.add('loggedIn');
+    } else {
+      target.classList.remove('loggedIn');
+    }
+  },
+
+  setSessionToken: token => {
+    app.config.sessionToken = token;
+    const tokenString = JSON.stringify(token);
+    localStorage.setItem('token', tokenString);
+    if (typeof token === 'object') {
+      app.setLoggedInClass(true);
+    } else {
+      app.setLoggedInClass(false);
+    }
+  },
+
+  // Renew the token
+  renewToken: callback => {
+    const currentToken =
+      typeof app.config.sessionToken == 'object'
+        ? app.config.sessionToken
+        : false;
+    if (correntToken) {
+      // Update the token with a new expiration date
+      const payload = {
+        id: currentToken.id,
+        extend: true
+      };
+      app.client.request(
+        undefined,
+        'api/tokens',
+        'PUT',
+        undifined,
+        payload,
+        (statusCode, responsePayload) => {
+          // Display an error on the form if needed
+          if (statusCode === 200) {
+            // Get the new token details
+            const queryStringObject = { id: currentToken.id };
+            app.client.request(
+              undefined,
+              'api/tokens',
+              'GET',
+              queryStringObject,
+              undefined,
+              (_statusCode, _responsePayload) => {
+                // Display an error on the form if needed
+                if (_statusCode === 200) {
+                  app.setSessionToken(_responsePayload);
+                  callback(false);
+                } else {
+                  app.setSessionToken(false);
+                  callback(true);
+                }
+              }
+            );
+          } else {
+            app.setSessionToken(false);
+            callback(true);
+          }
+        }
+      );
+    } else {
+      app.setSessionToken(false);
+      callback(true);
+    }
+  },
+
+  // Loop to renew token often
+  tokenRenewalLoop: () => {
+    setInterval(() => {
+      app.renewToken(err => {
+        if (!err) console.log(`Token renewed successfully @ ${Date.now()}`);
+      });
+    }, 1000 * 60);
+  },
+
+  // Init the app
+  init: () => {
+    // Bind all form submissions
+    app.bindForms();
+
+    // Get the token from the localstorage
+    app.getSessionToken();
+
+    // Renew token
+    app.tokenRenewalLoop();
   }
 };
+
+// Call the init processes after the window loads
+window.onload = () => app.init();
