@@ -212,6 +212,58 @@ const app = {
     }
   },
 
+  // Renew the token
+  renewToken: callback => {
+    const currentToken =
+      typeof app.config.sessionToken == 'object'
+        ? app.config.sessionToken
+        : false;
+    if (correntToken) {
+      // Update the token with a new expiration date
+      const payload = {
+        id: currentToken.id,
+        extend: true
+      };
+      app.client.request(
+        undefined,
+        'api/tokens',
+        'PUT',
+        undifined,
+        payload,
+        (statusCode, responsePayload) => {
+          // Display an error on the form if needed
+          if (statusCode === 200) {
+            // Get the new token details
+            const queryStringObject = { id: currentToken.id };
+            app.client.request(
+              undefined,
+              'api/tokens',
+              'GET',
+              queryStringObject,
+              undefined,
+              (_statusCode, _responsePayload) => {
+                // Display an error on the form if needed
+                if (_statusCode === 200) {
+                  app.setSessionToken(_responsePayload);
+                  callback(false);
+                } else {
+                  app.setSessionToken(false);
+                  callback(true);
+                }
+              }
+            );
+          } else {
+            app.setSessionToken(false);
+            callback(true);
+          }
+        }
+      );
+    } else {
+      app.setSessionToken(false);
+      callback(true);
+    }
+  },
+
   // Init the app
   init: () => {
     // Bind all form submissions
