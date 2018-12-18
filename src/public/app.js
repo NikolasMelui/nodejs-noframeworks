@@ -264,6 +264,15 @@ const app = {
     }
   },
 
+  // Loop to renew token often
+  tokenRenewalLoop: () => {
+    setInterval(() => {
+      app.renewToken(err => {
+        if (!err) console.log(`Token renewed successfully @ ${Date.now()}`);
+      });
+    }, 1000 * 60);
+  },
+
   // Init the app
   init: () => {
     // Bind all form submissions
