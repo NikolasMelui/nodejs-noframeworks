@@ -80,64 +80,112 @@ const app = {
   },
 
   bindForms: () => {
-    document.querySelector('form').addEventListener('submit', event => {
-      // Stop it from submitting
-      event.preventDefault();
-      const formId = event.target.id;
-      const path = event.target.action;
-      const method = event.target.method.toUpperCase();
+    const submitButtons = document.querySelector('form');
+    if (submitButtons !== null) {
+      submitButtons.addEventListener('submit', event => {
+        // Stop it from submitting
+        event.preventDefault();
+        const formId = event.target.id;
+        const path = event.target.action;
+        const method = event.target.method.toUpperCase();
 
-      // Hide the error message (if it's currently show due to a previous error)
-      console.log(formId);
-      document.querySelector(`#${formId} .formError`).style.display = 'hidden';
+        // Hide the error message (if it's currently show due to a previous error)
+        console.log(formId);
+        document.querySelector(`#${formId} .formError`).style.display =
+          'hidden';
 
-      // Turn the inputs into a payload
-      const payload = {};
-      const elements = event.target.elements;
+        // Turn the inputs into a payload
+        const payload = {};
+        const elements = event.target.elements;
 
-      for (let i = 0; i < elements.length; i++) {
-        if (elements[i].type !== 'submit') {
-          payload[elements[i].name] =
-            elements[i].type == 'checkbox'
-              ? elements[i].checked
-              : elements[i].value;
-        }
-      }
-
-      // Call the API
-      app.client.request(
-        undefined,
-        path,
-        method,
-        undefined,
-        payload,
-        (statusCode, responsePayload) => {
-          // Display an error on the form if needed
-          if (statusCode !== 200) {
-            // Try to get the error from the API, or set a default error message
-            const error =
-              typeof responsePayload.Error === 'string'
-                ? responsePayload.Error
-                : 'An error has occured, please try again';
-            // Set the formError field with the error text
-            document.querySelector(`#${formId} .formError`).innerHTML = error;
-            // Show the form error field
-            document.querySelector(`#${formId} .formError`).style.display =
-              'block';
+        for (let i = 0; i < elements.length; i++) {
+          if (elements[i].type !== 'submit') {
+            payload[elements[i].name] =
+              elements[i].type == 'checkbox'
+                ? elements[i].checked
+                : elements[i].value;
           }
-          // If there is no error - send to form response processor
-          app.formResponseProcessor(formId, payload, responsePayload);
         }
-      );
-    });
+
+        // Call the API
+        app.client.request(
+          undefined,
+          path,
+          method,
+          undefined,
+          payload,
+          (statusCode, responsePayload) => {
+            // Display an error on the form if needed
+            if (statusCode !== 200) {
+              // Try to get the error from the API, or set a default error message
+              const error =
+                typeof responsePayload.Error === 'string'
+                  ? responsePayload.Error
+                  : 'An error has occured, please try again';
+              // Set the formError field with the error text
+              document.querySelector(`#${formId} .formError`).innerHTML = error;
+              // Show the form error field
+              document.querySelector(`#${formId} .formError`).style.display =
+                'block';
+            }
+            // If there is no error - send to form response processor
+            app.formResponseProcessor(formId, payload, responsePayload);
+          }
+        );
+      });
+    }
   },
   formResponseProcessor: (formId, requestPayload, responsePayload) => {
     const functionToCall = false;
+    // If account creation was successful, try to immediately log the user in
     if (formId === 'accountCreate') {
+      // Take the phone and password and use it to log the user in
+      const newPayload = {
+        phone: requestPayload.phone,
+        password: requestPayload.password
+      };
+      app.client.request(
+        undefined,
+        'api/tokens',
+        'POST',
+        undefined,
+        newPayload,
+        (newStatusCode, newResponsePayload) => {
+          // Display an error of the form if needed
+          if (newStatusCode !== 200) {
+            // Set the formError field with the error text
+            document.querySelector(`#${formId} .formError`).innerHTML =
+              'Sorry, an error has occured. Please try again.';
+            // Show the form error field
+            document.querySelector(`#${formId} .formError`).style.display =
+              'block';
+          } else {
+            // If successfull, set the token and redirect the user
+            app.setSessionToken(newResponsePayload);
+            window.location = '/checks/all';
+          }
+        }
+      );
+    }
+    // If login was successful, set the token in localstorage and redirect the user
+    if (formId === 'sessionCreate') {
+      app.setSessionToken(responsePayload);
+      window.location = '/checks/all';
     }
   },
-  // Init the app (bind all form submission)
-  init: () => app.bindForms()
+
+  // Init the app
+  init: () => {
+    // Bind all form submissions
+    app.bindForms();
+
+    // Get the token from the localstorage
+    app.getSessionToken();
+
+    // Renew token
+    app.tokenRenewalLoop();
+  }
 };
 
+// Call the init processes after the window loads
 window.onload = () => app.init();
