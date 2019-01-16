@@ -80,6 +80,18 @@ textarea {
   font-size: 11px;
 }
 
+.header ul li.loggedIn {
+  display: none;
+}
+
+body.loggedIn .header ul li.loggedIn {
+  display: inline-block;
+}
+
+body.loggedIn .header ul li.loggedOut {
+  display: none;
+}
+
 .header .logo {
   text-align: left;
   padding: 0 0 0 90px;
