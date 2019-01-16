@@ -129,6 +129,33 @@ const handlers = {
     }
   },
 
+  // Edit the account
+  accountEdit: (data, callback) => {
+    if (data.method === 'get') {
+      // Prepare data for interpolation
+      const templateData = {
+        'haad.title': 'Account settings',
+        'head.discription': 'Here you can edit your account.',
+        'body.class': 'accountEdit'
+      };
+      // Read in a template as a string
+      helpers.getTemplate('accountEdit', templateData, (err, str) => {
+        if (!err && str) {
+          // Add the universal header and footer
+          helpers.addUniversalTemplates(str, templateData, (_err, _str) => {
+            if (!_err && _str) {
+              callback(200, _str, 'html');
+            } else {
+              callback(500, undefined, 'html');
+            }
+          });
+        } else {
+          callback(500, undefined, 'html');
+        }
+      });
+    }
+  },
+
   // Favicon handler
   favicon: (data, callback) => {
     if (data.method === 'get') {
