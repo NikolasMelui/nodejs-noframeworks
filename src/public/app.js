@@ -79,6 +79,30 @@ const app = {
     }
   },
 
+  // Log the user out then redirect them
+  logUserOut: () => {
+    // Get the current token id
+    const tokenId =
+      typeof app.config.sessionToken.id === 'string'
+        ? app.config.sessionToken.id
+        : '';
+    // Send the current token to the tokens endpoint to delete it
+    const queryStringObject = { id: tokenId };
+    app.client.request(
+      undefined,
+      'api/tokens',
+      'DELETE',
+      queryStringObject,
+      undefined,
+      (statusCode, responsePayload) => {
+        // Set the app.config token to false
+        app.setSessionToken(false);
+        // Send the user to the logged out page
+        window.location = 'session/delete';
+      }
+    );
+  },
+
   bindForms: () => {
     const submitButtons = document.querySelector('form');
     if (submitButtons !== null) {
