@@ -95,7 +95,7 @@ const app = {
     const tokenId =
       typeof app.config.sessionToken.id === 'string'
         ? app.config.sessionToken.id
-        : '';
+        : false;
     // Send the current token to the tokens endpoint to delete it
     const queryStringObject = { id: tokenId };
     app.client.request(
@@ -108,7 +108,7 @@ const app = {
         // Set the app.config token to false
         app.setSessionToken(false);
         // Send the user to the logged out page
-        window.location = 'session/delete';
+        window.location = 'session/deleted';
       }
     );
   },
@@ -253,7 +253,7 @@ const app = {
       typeof app.config.sessionToken == 'object'
         ? app.config.sessionToken
         : false;
-    if (correntToken) {
+    if (currentToken) {
       // Update the token with a new expiration date
       const payload = {
         id: currentToken.id,
@@ -263,7 +263,7 @@ const app = {
         undefined,
         'api/tokens',
         'PUT',
-        undifined,
+        undefined,
         payload,
         (statusCode, responsePayload) => {
           // Display an error on the form if needed
@@ -312,6 +312,9 @@ const app = {
   init: () => {
     // Bind all form submissions
     app.bindForms();
+
+    // Bind the logout button
+    app.bindLogoutButton();
 
     // Get the token from the localstorage
     app.getSessionToken();
