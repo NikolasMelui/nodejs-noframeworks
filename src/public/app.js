@@ -79,6 +79,16 @@ const app = {
     }
   },
 
+  // Bind the logged out button
+  bindLogoutButton: () => {
+    document.getElementById('logoutButton').addEventListener('click', event => {
+      // Stop it from redirecting anywhere
+      event.preventDefault();
+      // Log the user out
+      app.logUserOut();
+    });
+  },
+
   // Log the user out then redirect them
   logUserOut: () => {
     // Get the current token id
