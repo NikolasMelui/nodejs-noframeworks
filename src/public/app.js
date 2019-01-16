@@ -79,6 +79,40 @@ const app = {
     }
   },
 
+  // Bind the logged out button
+  bindLogoutButton: () => {
+    document.getElementById('logoutButton').addEventListener('click', event => {
+      // Stop it from redirecting anywhere
+      event.preventDefault();
+      // Log the user out
+      app.logUserOut();
+    });
+  },
+
+  // Log the user out then redirect them
+  logUserOut: () => {
+    // Get the current token id
+    const tokenId =
+      typeof app.config.sessionToken.id === 'string'
+        ? app.config.sessionToken.id
+        : false;
+    // Send the current token to the tokens endpoint to delete it
+    const queryStringObject = { id: tokenId };
+    app.client.request(
+      undefined,
+      'api/tokens',
+      'DELETE',
+      queryStringObject,
+      undefined,
+      (statusCode, responsePayload) => {
+        // Set the app.config token to false
+        app.setSessionToken(false);
+        // Send the user to the logged out page
+        window.location = 'session/deleted';
+      }
+    );
+  },
+
   bindForms: () => {
     const submitButtons = document.querySelector('form');
     if (submitButtons !== null) {
@@ -201,6 +235,7 @@ const app = {
     }
   },
 
+  // Set the session token in the app.config object as well as localstorage
   setSessionToken: token => {
     app.config.sessionToken = token;
     const tokenString = JSON.stringify(token);
@@ -218,7 +253,7 @@ const app = {
       typeof app.config.sessionToken == 'object'
         ? app.config.sessionToken
         : false;
-    if (correntToken) {
+    if (currentToken) {
       // Update the token with a new expiration date
       const payload = {
         id: currentToken.id,
@@ -228,7 +263,7 @@ const app = {
         undefined,
         'api/tokens',
         'PUT',
-        undifined,
+        undefined,
         payload,
         (statusCode, responsePayload) => {
           // Display an error on the form if needed
@@ -264,6 +299,63 @@ const app = {
     }
   },
 
+  // Load data on the page
+  loadDataOnPage: () => {
+    // Get the current page from the body class
+    const bodyClasses = document.querySelector('body').classList;
+    const primaryClass =
+      typeof bodyClasses[0] === 'string' ? bodyClasses[0] : false;
+
+    // Logic for account settings page
+    if (primaryClass === 'accountEdit') {
+      app.loadAccountEditPage();
+    }
+  },
+
+  // Load the account edit page specifically
+  loadAccountEditPage: () => {
+    // Get the phone number from the current token, or log the user out if none is there
+    const phone =
+      typeof app.config.sessionToken.phone == 'string'
+        ? app.config.sessionToken.phone
+        : false;
+
+    if (phone) {
+      // Fetch the user data
+      const queryStringObject = { phone };
+      app.client.request(
+        undefined,
+        'api/users',
+        'GET',
+        queryStringObject,
+        undefined,
+        (statusCode, responsePayload) => {
+          if (statusCode === 200) {
+            // Put the data into the forms as values where needed
+            document.querySelector('#accountEdit1 .firstNameInput').value =
+              responsePayload.firstName;
+            document.querySelector('#accountEdit1 .lastNameInput').value =
+              responsePayload.lastName;
+            document.querySelector('#accountEdit1 .displayPhoneInput').value =
+              responsePayload.phone;
+            // Put the hidden phone field into both forms
+            const hiddenPhoneInputs = document.querySelectorAll(
+              'input.hiddenPhoneNumberInput'
+            );
+            for (var i = 0; i < hiddenPhoneInputs.length; i++) {
+              hiddenPhoneInputs[i].value = responsePayload.phone;
+            }
+          } else {
+            // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
+            app.logUserOut();
+          }
+        }
+      );
+    } else {
+      app.logUserOut();
+    }
+  },
+
   // Loop to renew token often
   tokenRenewalLoop: () => {
     setInterval(() => {
@@ -278,11 +370,17 @@ const app = {
     // Bind all form submissions
     app.bindForms();
 
+    // Bind the logout button
+    app.bindLogoutButton();
+
     // Get the token from the localstorage
     app.getSessionToken();
 
     // Renew token
     app.tokenRenewalLoop();
+
+    // Load data on page
+    app.loadDataOnPage();
   }
 };
 
