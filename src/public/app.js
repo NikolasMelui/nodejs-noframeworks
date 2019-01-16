@@ -201,6 +201,7 @@ const app = {
     }
   },
 
+  // Set the session token in the app.config object as well as localstorage
   setSessionToken: token => {
     app.config.sessionToken = token;
     const tokenString = JSON.stringify(token);
