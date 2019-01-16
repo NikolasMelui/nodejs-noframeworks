@@ -103,7 +103,7 @@ const handlers = {
   },
 
   // Delete Session
-  sessionDelete: (data, callback) => {
+  sessionDeleted: (data, callback) => {
     if (data.method === 'get') {
       // Prepare data for interpolation
       const templateData = {
